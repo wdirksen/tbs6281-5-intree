@@ -8,7 +8,7 @@ if SAA716X_SUPPORT
 config SAA716X_CORE
 	tristate "SAA7160/1/2 PCI Express bridge based devices"
 	depends on PCI && I2C
-
+	default y
 	help
 	  Support for PCI cards based on the SAA7160/1/2 PCI Express bridge.
 
@@ -17,15 +17,12 @@ config SAA716X_CORE
 config DVB_SAA716X_BUDGET
 	tristate "SAA7160/1/2 based Budget PCIe cards (DVB only)"
 	depends on SAA716X_CORE && DVB_CORE
-
+	default y
 	help
 	  Support for the SAA7160/1/2 based Budget PCIe DVB cards
 	  Currently supported devices are:
 
-	  * KNC1 Dual S2 (DVB-S, DVB-S/S2)
-	  * Twinhan/Azurewave VP-1028 (DVB-S)
-	  * Twinhan/Azurewave VP-3071 (DVB-T x2)
-	  * Twinhan/Azurewave VP-6002 (DVB-S)
+	  * TBS6281/6285
 
 	  Say Y if you own such a device and want to use it.
 
