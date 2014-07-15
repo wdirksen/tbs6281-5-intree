@@ -7,7 +7,7 @@
 +config DVB_SI2168
 +	tristate "Silicon Labs Si2168"
 +	depends on DVB_CORE && I2C && I2C_MUX
-+	default m if !MEDIA_SUBDRV_AUTOSELECT
++	default m
 +	help
 +	  Say Y when you want to support this frontend.
 +
