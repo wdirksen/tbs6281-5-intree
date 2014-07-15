@@ -36,7 +36,6 @@
 #include "mb86a16.h"
 #include "stv6110x.h"
 #include "stv090x.h"
-#include "tas2101.h"
 #include "av201x.h"
 #include "cx24117.h"
 #include "isl6422.h"
