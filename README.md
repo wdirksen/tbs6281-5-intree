@@ -12,7 +12,7 @@ cp -f ../drivers/media/tuners/* drivers/media/tuners/
 
 sed -i "s/saa7146\//saa7146\/        \\\/" drivers/media/pci/Makefile
 
-sed -i '/saa7146\/        \\/a saa716x\/' drivers/media/pci/Makefile
+sed -i '/saa7146/a\\t\tsaa716x/' drivers/media/pci/Makefile
 
 sed -i "\/source \"drivers\/media\/pci\/ddbridge\/Kconfig\"/a\\source \"drivers\/media\/pci\/saa716x\/Kconfig\"" drivers/media/pci/Kconfig
 
