@@ -49,6 +49,23 @@ make -C debian/build/build_amd64_none_amd64 menuconfig
 
 fakeroot make -f debian/rules.gen binary-arch_amd64_none_real
 
-fakeroot make -f debian/rules.gen binary-arch_amd64_none_amd64
+fakeroot make -j 3 -f debian/rules.gen binary-arch_amd64_none_amd64
+
+
+
+apt-get -t wheezy-backports install initramfs-tools \
+linux-kbuild-3.14 linux-compiler-gcc-4.6-x86
+
+
+
+
+cd ..
+
+dpkg -i linux-image*
+
+dpkg -i linux-headers*
+
+apt-get -f install
+
 
 
