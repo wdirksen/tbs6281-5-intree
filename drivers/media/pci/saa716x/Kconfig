@@ -23,7 +23,10 @@ config DVB_SAA716X_BUDGET
 	  Support for the SAA7160/1/2 based Budget PCIe DVB cards
 	  Currently supported devices are:
 
-	  * TBS6281/6285
+	  * KNC1 Dual S2 (DVB-S, DVB-S/S2)
+	  * Twinhan/Azurewave VP-1028 (DVB-S)
+	  * Twinhan/Azurewave VP-3071 (DVB-T x2)
+	  * Twinhan/Azurewave VP-6002 (DVB-S)
 
 	  Say Y if you own such a device and want to use it.
 

@@ -293,7 +293,6 @@ static void demux_worker(unsigned long data)
 	} while (write_index != fgpi_entry->read_index);
 }
 
-
 #define SAA716x_MODEL_TBS6281		"TurboSight TBS 6281"
 #define SAA716x_DEV_TBS6281		"DVB-T/T2/C"
 
@@ -319,6 +318,7 @@ static int saa716x_tbs6281_frontend_attach(struct saa716x_adapter *adapter, int 
 	/* attach demod */
 	si2168_config.i2c_adapter = &i2cadapter;
 	si2168_config.fe = &adapter->fe;
+	si2168_config.ts_mode = SI2168_TSMODE_PARALLEL;
 	memset(&info, 0, sizeof(struct i2c_board_info));
 	strlcpy(info.type, "si2168", I2C_NAME_SIZE);
 	info.addr = 0x64;
@@ -407,6 +407,7 @@ static int saa716x_tbs6285_frontend_attach(struct saa716x_adapter *adapter, int 
 	/* attach demod */
 	si2168_config.i2c_adapter = &i2cadapter;
 	si2168_config.fe = &adapter->fe;
+	si2168_config.ts_mode = SI2168_TSMODE_SERIAL;
 	memset(&info, 0, sizeof(struct i2c_board_info));
 	strlcpy(info.type, "si2168", I2C_NAME_SIZE);
 	info.addr = ((count == 0) || (count == 2)) ? 0x64 : 0x66;
@@ -489,12 +490,12 @@ static struct saa716x_config saa716x_tbs6285_config = {
 	},
 };
 
+
 static struct pci_device_id saa716x_budget_pci_table[] = {
 	MAKE_ENTRY(TURBOSIGHT_TBS6281, TBS6281,   SAA7160, &saa716x_tbs6281_config),
 	MAKE_ENTRY(TURBOSIGHT_TBS6285, TBS6285,   SAA7160, &saa716x_tbs6285_config),
 	{ }
 };
-
 MODULE_DEVICE_TABLE(pci, saa716x_budget_pci_table);
 
 static struct pci_driver saa716x_budget_pci_driver = {
