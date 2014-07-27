@@ -1,6 +1,23 @@
+##
+## HOW-TO
+##
+
+
 git clone https://github.com/bas-t/tbs6281-5-intree.git && cd tbs6281-5-intree
 
-apt-get source linux && cd linux*
+##
+## Get and prepare the kernel source
+##
+## wget <some kernel>
+##
+
+wget https://www.kernel.org/pub/linux/kernel/v3.x/linux-3.15.6.tar.xz
+
+tar -xJf *.xz && cd linux* && make clean && make mrproper
+
+##
+## Add TBS 6281/6285 open source drivers to the kernel source
+##
 
 mkdir drivers/media/pci/saa716x
 
@@ -26,46 +43,37 @@ obj-\$(CONFIG_DVB_SI2168) += si2168.o" drivers/media/dvb-frontends/Makefile
 sed -i "$ a\
 obj-\$(CONFIG_MEDIA_TUNER_SI2157) += si2157.o" drivers/media/tuners/Makefile
 
+##
+## Patch dvbdev.c for use with FFdecsawrapper
+##
+
 patch -p1 < ../3.13-dvb-mutex.patch
 
-_ABINAME=$(cat debian/config/defines | grep 'abiname:' | awk -F"[ ]" '{ print $NF }')
+##
+## Configure the kernel
+##
 
-export _ABINAME
+make oldconfig
 
-sed -i "s/abiname: $_ABINAME/abiname: 90/" debian/config/defines
+make menuconfig
 
-sed -i "s/ABINAME_PART='-$_ABINAME'/ABINAME_PART='-90'/g" debian/rules.gen
+##
+## Compile the kernel (Debian style)
+##
 
-fakeroot debian/rules debian/control-real
+make-kpkg --rootcmd fakeroot clean
 
+export CONCURRENCY_LEVEL=3
 
+make-kpkg --rootcmd fakeroot --initrd kernel_image
 
-
-sed -i "s/DEBUG='True'/DEBUG='FALSE'/g" debian/rules.gen
-
-fakeroot make -f debian/rules.gen setup_amd64_none_amd64
-
-make -C debian/build/build_amd64_none_amd64 menuconfig
-
-fakeroot make -f debian/rules.gen binary-arch_amd64_none_real
-
-fakeroot make -j 3 -f debian/rules.gen binary-arch_amd64_none_amd64
-
-
-
-apt-get -t wheezy-backports install initramfs-tools \
-linux-kbuild-3.14 linux-compiler-gcc-4.6-x86
-
-
+##
+## Install the kernel
+##
 
 
 cd ..
 
-dpkg -i linux-image*
-
-dpkg -i linux-headers*
-
-apt-get -f install
-
+dpkg -i *.deb
 
 
