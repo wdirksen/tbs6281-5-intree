@@ -1,0 +1,12 @@
+--- drivers/media/dvb-frontends/si2168.c	2014-07-27 10:12:36.530144576 +0200
++++ drivers/media/dvb-frontends/si2168.c	2014-07-27 10:14:36.083146011 +0200
+@@ -568,7 +568,7 @@
+ }
+ 
+ static const struct dvb_frontend_ops si2168_ops = {
+-	.delsys = {SYS_DVBT, SYS_DVBT2, SYS_DVBC_ANNEX_A},
++	.delsys = {SYS_DVBC_ANNEX_A},
+ 	.info = {
+ 		.name = "Silicon Labs Si2168",
+ 		.caps =	FE_CAN_FEC_1_2 |
+

@@ -13,7 +13,9 @@ git clone https://github.com/bas-t/tbs6281-5-intree.git && cd tbs6281-5-intree
 
 wget https://www.kernel.org/pub/linux/kernel/v3.x/linux-3.15.6.tar.xz
 
-tar -xJf *.xz && cd linux* && make clean && make mrproper
+tar -xJf *.xz && cd linux*
+
+make clean && make mrproper
 
 ##
 ## Add TBS 6281/6285 open source drivers to the kernel source
@@ -56,6 +58,15 @@ patch -p1 < ../3.13-dvb-mutex.patch
 make oldconfig
 
 make menuconfig
+
+##
+## In an ideal world, the adapters should appear as both DVB-T and DVB-C
+## In some cases they only show as DVB-T. That is bad news for those who want
+## to use their adapers in DVB-C mode. The good news is: it can be forced to
+## DVB-C mode. Drawback: If you force them to DVB-C, DVB-T/T2 is unavailable.
+##
+
+patch -p0 < ../force-dvb-c.patch
 
 ##
 ## Compile the kernel (Debian style)
