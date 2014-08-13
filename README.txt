@@ -87,4 +87,10 @@ cd ..
 
 dpkg -i *.deb
 
+##
+## Install the firmware
+##
+
+cp -f firmware/* /lib/firmware/
+
 
