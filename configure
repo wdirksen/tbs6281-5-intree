@@ -1,0 +1,259 @@
+#!/bin/bash
+
+die_unknown(){
+    echo -en "
+\E[1;33;44mUnknown option \"$1\".\E[0m
+
+"
+    ./configure --help
+    exit 1
+}
+
+die(){
+    echo -en "
+\E[1;33;44m$1, aborting...\E[0m
+
+"
+    exit 1
+}
+
+confirmyes(){
+    # call with a prompt string or use a default
+    read -r -p "${1:-Are you sure? [Y/n]} " response
+    case $response in
+        [yY][eE][sS]|[yY]) 
+            true
+            ;;
+        [nN][oO]|[nN])
+            false
+            ;;
+        *)
+            true
+            ;;
+    esac
+}
+
+show_help(){
+  echo " Usage: ./configure --opt=<opt>"
+  echo "                        "
+  echo " Options: [default], if any, in brackets after option."
+  echo "                        "
+  echo " --help                 Print this message"
+  echo "                        "
+  echo " --version              [90] Set kernel version"
+  echo "                        like from 3.16.0-x to"
+  echo "                        3.16.0-90"
+  echo "                        "
+  exit 0
+}
+
+version_opt="90"
+
+for opt do
+  optval="${opt#*=}"
+  case "$opt" in
+  --version=*) version_opt="$optval"
+  ;;
+  --help) show_help
+  ;;
+  *)
+  die_unknown $opt
+  ;;
+  esac
+done
+
+OS=$( lsb_release -si )
+RELEASE=$( lsb_release -sc )
+
+if ! [ "$OS" = Debian -o "$OS" = Ubuntu ] ; then
+  echo -en "
+\E[1;33;44m
+Your operating system is not supported.
+
+Should be Debian or Ubuntu.
+
+Aborting...
+\E[0m
+
+"
+  exit 0
+fi
+
+# Get kernel version numbers
+
+FIRST_DIGIT=$( echo `uname -r` | grep -o '[[:digit:]]\+' | head -n1 )
+SECOND_DIGIT=$( echo `uname -r` | grep -o '[[:digit:]]\+' | head -n2 | awk 'NR==2' )
+
+# Abort if running kernel is < 3.13
+
+if [ "$FIRST_DIGIT" -lt 3 ]; then
+  echo -en "
+\E[1;33;44m
+The kernel you are running is not supported anymore.
+
+Minimum supported version is 3.13
+\E[0m
+
+Aborting...
+
+"
+  exit 1
+fi
+
+if [ "$SECOND_DIGIT" -lt 13 ]; then
+  echo -en "
+\E[1;33;44m
+The kernel you are running is not supported anymore.
+
+Minimum supported version is 3.13
+\E[0m
+
+Aborting...
+
+"
+  exit 1
+fi
+
+# Make sure that we are running as root
+
+if ! echo "$(whoami)" | grep "root" > /dev/null 2>&1; then
+  if [ "$OS" = Debian ]; then
+    echo -en "
+\E[1;33;44m
+You should run as root.
+
+Aborting...
+\E[0m
+
+"
+    exit 0
+  else
+    echo -en "
+\E[1;33;44m
+You should run as root.
+
+Do \"sudo su\" and run me again.
+
+Aborting...
+\E[0m
+
+"
+    exit 0
+  fi
+fi
+
+# Get the system up-to-date
+
+apt-get update && apt-get dist-upgrade -y || die "Error(s) while updating your system"
+
+# Install dependencies for building the kernel
+
+apt-get build-dep linux --no-install-recommends -y || die "Error installing \"build-dep linux\""
+
+apt-get install kernel-package bin86 devscripts binutils-dev crash libncurses5-dev libgtk2.0-dev libnuma-dev libperl-dev makedumpfile libelf-dev initramfs-tools --no-install-recommends -y || die "Error installing build dependencies"
+
+# Get the linux source
+
+apt-get source linux && cd linux*
+
+# Patch it for use with FFdecsawrapper
+
+patch -p1 < ../3.13-dvb-mutex.patch
+
+# Add TBS drivers to the kernel
+
+mkdir drivers/media/pci/saa716x
+
+cp -f ../drivers/media/pci/saa716x/* drivers/media/pci/saa716x/
+
+cp -f ../drivers/media/dvb-frontends/* drivers/media/dvb-frontends/
+
+cp -f ../drivers/media/tuners/* drivers/media/tuners/
+
+sed -i "s/saa7146\//saa7146\/        \\\/" drivers/media/pci/Makefile
+
+sed -i '/saa7146/a\\t\tsaa716x/' drivers/media/pci/Makefile
+
+sed -i "\/source \"drivers\/media\/pci\/ddbridge\/Kconfig\"/a\\source \"drivers\/media\/pci\/saa716x\/Kconfig\"" drivers/media/pci/Kconfig
+
+patch -p0 < ../Kconfig.patch
+
+patch -p0 < ../Kconfig-1.patch
+
+sed -i "$ a\
+obj-\$(CONFIG_DVB_SI2168) += si2168.o" drivers/media/dvb-frontends/Makefile
+
+sed -i "$ a\
+obj-\$(CONFIG_MEDIA_TUNER_SI2157) += si2157.o" drivers/media/tuners/Makefile
+
+# Patch for use in DVB-C mode
+
+patch -p0 < ../force-dvb-c.patch
+
+# Set the kernel version
+
+if [ "$OS" = Debian ] ; then
+_ABINAME=$(cat debian/config/defines | grep 'abiname:' | awk -F"[ ]" '{ print $NF }')
+
+  export _ABINAME
+
+  sed -i "s/abiname: $_ABINAME/abiname: $version_opt/" debian/config/defines
+
+  sed -i "s/ABINAME_PART='-$_ABINAME'/ABINAME_PART='-$version_opt'/g" debian/rules.gen
+
+  fakeroot debian/rules debian/control-real
+
+  # Don't build the debug package
+
+  sed -i "s/DEBUG='True'/DEBUG='FALSE'/g" debian/rules.gen
+
+  # Setup kernel config
+
+  fakeroot make -f debian/rules.gen setup_amd64_none_amd64
+
+  # Change the max num of DVB adapters
+
+  echo -en "
+Do you want to change your kernel config?
+
+(you have to, if you are using >4 DVB adapters)
+
+"
+  confirmyes "Yes, start menuconfig [Y/n]"
+
+  if [ "$?" -eq 0 ]; then
+
+    make -C debian/build/build_amd64_none_amd64 menuconfig
+
+  fi
+
+  # Compile kernel + headers
+
+  fakeroot make -f debian/rules.gen binary-arch_amd64_none_real
+
+  fakeroot make -j 3 -f debian/rules.gen binary-arch_amd64_none_amd64
+
+  # Install the lot
+
+  cd ..
+
+  dpkg -i linux-image*
+
+  dpkg -i linux-headers*
+
+  apt-get -f install
+
+elif [ "$OS" = Ubuntu ] ; then
+  echo "Nothing here (yet)"
+fi
+
+# Install the firmware
+
+cp -f firmware/* /lib/firmware/
+
+# Set msi mode
+
+echo "options saa716x_budget int_type=1" > /etc/modprobe.d/tbs.conf
+
+echo "options saa716x_tbs-dvb int_type=1" >> /etc/modprobe.d/tbs.conf
+
