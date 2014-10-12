@@ -253,7 +253,4 @@ cp -f firmware/* /lib/firmware/
 
 # Set msi mode
 
-echo "options saa716x_budget int_type=1" > /etc/modprobe.d/tbs.conf
-
-echo "options saa716x_tbs-dvb int_type=1" >> /etc/modprobe.d/tbs.conf
-
+echo "options saa716x_budget int_type=1" > /etc/modprobe.d/tbs_opensource.conf
