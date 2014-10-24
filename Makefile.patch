@@ -1,0 +1,21 @@
+--- drivers/media/pci/Makefile	2014-10-20 03:08:38.000000000 +0200
++++ drivers/media/pci/Makefile	2014-10-24 15:52:27.684051683 +0200
+@@ -11,7 +11,8 @@
+ 		mantis/		\
+ 		ngene/		\
+ 		ddbridge/	\
+-		saa7146/
++		saa7146/	\
++		saa716x/
+ 
+ obj-$(CONFIG_VIDEO_IVTV) += ivtv/
+ obj-$(CONFIG_VIDEO_ZORAN) += zoran/
+@@ -22,6 +23,7 @@
+ obj-$(CONFIG_VIDEO_BT848) += bt8xx/
+ obj-$(CONFIG_VIDEO_SAA7134) += saa7134/
+ obj-$(CONFIG_VIDEO_SAA7164) += saa7164/
++obj-$(CONFIG_SAA716X_CORE) += saa716x/
+ obj-$(CONFIG_VIDEO_TW68) += tw68/
+ obj-$(CONFIG_VIDEO_MEYE) += meye/
+ obj-$(CONFIG_STA2X11_VIP) += sta2x11/
+
