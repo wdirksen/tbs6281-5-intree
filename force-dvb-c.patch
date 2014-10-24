@@ -1,6 +1,6 @@
---- drivers/media/dvb-frontends/si2168.c	2014-07-27 10:12:36.530144576 +0200
-+++ drivers/media/dvb-frontends/si2168.c	2014-07-27 10:14:36.083146011 +0200
-@@ -568,7 +568,7 @@
+--- drivers/media/dvb-frontends/si2168.c	2014-10-20 03:08:38.000000000 +0200
++++ drivers/media/dvb-frontends/si2168.c	2014-10-24 15:04:35.649211420 +0200
+@@ -602,7 +602,7 @@
  }
  
  static const struct dvb_frontend_ops si2168_ops = {

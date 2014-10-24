@@ -33,7 +33,6 @@ patch -p0 < ../Kconfig.patch
 
 patch -p0 < ../Kconfig-1.patch
 
-
 patch -p0 < ../Kconfig-2.patch
 
 patch -p0 < ../Makefile.patch
