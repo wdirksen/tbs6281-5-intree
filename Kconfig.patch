@@ -1,17 +1,11 @@
---- drivers/media/dvb-frontends/Kconfig	2014-07-09 20:18:37.000000000 +0200
-+++ drivers/media/dvb-frontends/Kconfig	2014-07-15 01:40:12.398260471 +0200
-@@ -45,6 +45,13 @@
- comment "Multistandard (cable + terrestrial) frontends"
- 	depends on DVB_CORE
- 
-+config DVB_SI2168
-+	tristate "Silicon Labs Si2168"
-+	depends on DVB_CORE && I2C && I2C_MUX
+--- drivers/media/dvb-frontends/Kconfig	2014-10-20 03:08:38.000000000 +0200
++++ drivers/media/dvb-frontends/Kconfig	2014-10-24 14:28:15.573798453 +0200
+@@ -467,7 +467,7 @@
+ config DVB_SI2168
+ 	tristate "Silicon Labs Si2168"
+ 	depends on DVB_CORE && I2C && I2C_MUX
+-	default m if !MEDIA_SUBDRV_AUTOSELECT
 +	default m
-+	help
-+	  Say Y when you want to support this frontend.
-+
- config DVB_DRXK
- 	tristate "Micronas DRXK based"
- 	depends on DVB_CORE && I2C
-
+ 	help
+ 	  Say Y when you want to support this frontend.
+ 

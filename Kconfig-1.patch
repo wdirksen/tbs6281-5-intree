@@ -1,15 +1,11 @@
---- drivers/media/tuners/Kconfig	2014-07-09 20:18:37.000000000 +0200
-+++ drivers/media/tuners/Kconfig	2014-07-15 02:00:57.086573620 +0200
-@@ -242,4 +242,11 @@
- 	default m if !MEDIA_SUBDRV_AUTOSELECT
- 	help
- 	  Rafael Micro R820T silicon tuner driver.
-+
-+config MEDIA_TUNER_SI2157
-+	tristate "Silicon Labs Si2157 silicon tuner"
-+	depends on MEDIA_SUPPORT && I2C
+--- drivers/media/tuners/Kconfig	2014-10-20 03:08:38.000000000 +0200
++++ drivers/media/tuners/Kconfig	2014-10-24 14:23:58.817004782 +0200
+@@ -242,7 +242,7 @@
+ config MEDIA_TUNER_SI2157
+ 	tristate "Silicon Labs Si2157 silicon tuner"
+ 	depends on MEDIA_SUPPORT && I2C
+-	default m if !MEDIA_SUBDRV_AUTOSELECT
 +	default m
-+	help
-+	  Silicon Labs Si2157 silicon tuner driver.
- endmenu
-
+ 	help
+ 	  Silicon Labs Si2157 silicon tuner driver.
+ 
