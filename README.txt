@@ -25,10 +25,6 @@ mkdir drivers/media/pci/saa716x
 
 cp -f ../drivers/media/pci/saa716x/* drivers/media/pci/saa716x/
 
-#cp -f ../drivers/media/dvb-frontends/* drivers/media/dvb-frontends/
-
-#cp -f ../drivers/media/tuners/* drivers/media/tuners/
-
 patch -p0 < ../Kconfig.patch
 
 patch -p0 < ../Kconfig-1.patch
