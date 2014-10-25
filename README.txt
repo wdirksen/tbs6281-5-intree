@@ -1,6 +1,8 @@
 ##
 ## HOW-TO
 ##
+## For use with linux-3.18 and up
+##
 
 
 git clone https://github.com/bas-t/tbs6281-5-intree.git && cd tbs6281-5-intree
@@ -80,5 +82,13 @@ dpkg -i *.deb
 ##
 
 cp -f firmware/* /lib/firmware/
+
+##
+## Set msi mode
+##
+
+echo "options saa716x_budget int_type=1" > /etc/modprobe.d/tbs_opensource.conf
+
+
 
 
