@@ -40,19 +40,24 @@ show_help(){
   echo "                        "
   echo " --help                 Print this message"
   echo "                        "
-  echo " --version              [90] Set kernel version"
-  echo "                        like from 3.16.0-x to"
-  echo "                        3.16.0-90"
+  echo " --vanilla=<bool>       Set vanilla kernel to use,"
+  echo "                        like 3.18-rc2"
+  echo "                        "
+  echo " --update=<opt>         [yes] no: don't clean local clone and"
+  echo "                        don't pull in any updates."
   echo "                        "
   exit 0
 }
 
-version_opt="90"
+vanilla_opt=""
+update_opt="yes"
 
 for opt do
   optval="${opt#*=}"
   case "$opt" in
-  --version=*) version_opt="$optval"
+  --vanilla=*) vanilla_opt="$optval"
+  ;;
+  --update=*) update_opt="$optval"
   ;;
   --help) show_help
   ;;
@@ -79,39 +84,98 @@ Aborting...
   exit 0
 fi
 
-# Get kernel version numbers
-
-FIRST_DIGIT=$( echo `uname -r` | grep -o '[[:digit:]]\+' | head -n1 )
-SECOND_DIGIT=$( echo `uname -r` | grep -o '[[:digit:]]\+' | head -n2 | awk 'NR==2' )
-
-# Abort if running kernel is < 3.18
-
-if [ "$FIRST_DIGIT" -lt 3 ]; then
-  echo -en "
+# Check git status
+if [ "x$update_opt" = "xyes" ]; then
+  git clean -xfd > /dev/null
+  git reset --hard HEAD > /dev/null
+  git remote update > /dev/null 2>&1
+  if ! [ "$?" -eq 0 ]; then
+    echo -en "
 \E[1;33;44m
-The kernel you are running is not supported anymore.
+###################################
 
-Minimum supported version is 3.18
-\E[0m
+Error(s) encountered while updating
+
+the status from remote git repo.
 
 Aborting...
 
-"
-  exit 1
-fi
-
-if [ "$SECOND_DIGIT" -lt 18 ]; then
-  echo -en "
-\E[1;33;44m
-The kernel you are running is not supported anymore.
-
-Minimum supported version is 3.18
+####################################
 \E[0m
+"
+    exit 1
+  fi
+  LOCAL=$(git rev-parse @{0})
+  REMOTE=$(git rev-parse @{u})
+  BASE=$(git merge-base @{0} @{u})
+
+  if [ $LOCAL = $REMOTE ]; then
+    GITSTATUS="0"    # "Up-to-date"
+  elif [ $LOCAL = $BASE ]; then
+    GITSTATUS="1"    # "Need to pull"
+  elif [ $REMOTE = $BASE ]; then
+    GITSTATUS="2"    # "Need to push"
+  else
+    GITSTATUS="3"    # "Diverged"
+  fi
+  if [ "$GITSTATUS" -eq "0" ]; then
+    echo "
+Your local clone is clean and up-to-date
+"
+    sleep 3
+  elif [ "$GITSTATUS" -eq "1" ]; then
+    echo "
+Going to sync your local clone with updated remote repo.
+"
+    sleep 3
+    git pull > /dev/null
+    if ! [ "$?" -eq 0 ]; then
+      echo -en "
+\E[1;33;44m
+###################################
+
+Error(s) encountered while syncing
+
+local with remote repo
 
 Aborting...
 
+####################################
+\E[0m
 "
-  exit 1
+      exit 1
+    else
+      echo -en "
+\E[1;33;44m
+###################################################
+
+Synced with remote repo successfully! Please rerun
+
+./configure to complete installation of drivers.
+
+Arrow up and enter will get you there.
+
+####################################################
+\E[0m
+"
+      exit 0
+    fi
+  elif [ "$GITSTATUS" -eq "2" -o "$GITSTATUS" -eq "3" ]; then
+    echo -en "
+\E[1;33;44m
+#####################################
+
+Your local clone cannot be synced
+
+with remote repo due to local changes
+
+Aborting...
+
+######################################
+\E[0m
+"
+    exit 1
+  fi    
 fi
 
 # Make sure that we are running as root
@@ -153,8 +217,13 @@ apt-get build-dep linux --no-install-recommends -y || die "Error installing \"bu
 apt-get install kernel-package bin86 devscripts binutils-dev crash libncurses5-dev libgtk2.0-dev libnuma-dev libperl-dev makedumpfile libelf-dev initramfs-tools --no-install-recommends -y || die "Error installing build dependencies"
 
 # Get the linux source
+if ! echo "$vanilla_opt" | grep "rc" > /dev/null 2>&1; then 
+  wget https://www.kernel.org/pub/linux/kernel/v3.x/linux-$vanilla_opt.tar.xz
+else
+  wget https://www.kernel.org/pub/linux/kernel/v3.x/testing/linux-$vanilla_opt.tar.xz
+fi
 
-apt-get source linux && cd linux*
+tar -xJf linux-$vanilla_opt.tar.xz && cd linux*
 
 # Patch it for use with FFdecsawrapper
 
@@ -181,23 +250,8 @@ patch -p0 < ../force-dvb-c.patch
 # Set the kernel version
 
 if [ "$OS" = Debian ] ; then
-_ABINAME=$(cat debian/config/defines | grep 'abiname:' | awk -F"[ ]" '{ print $NF }')
 
-  export _ABINAME
-
-  sed -i "s/abiname: $_ABINAME/abiname: $version_opt/" debian/config/defines
-
-  sed -i "s/ABINAME_PART='-$_ABINAME'/ABINAME_PART='-$version_opt'/g" debian/rules.gen
-
-  fakeroot debian/rules debian/control-real
-
-  # Don't build the debug package
-
-  sed -i "s/DEBUG='True'/DEBUG='FALSE'/g" debian/rules.gen
-
-  # Setup kernel config
-
-  fakeroot make -f debian/rules.gen setup_amd64_none_amd64
+  make oldconfig
 
   # Change the max num of DVB adapters
 
@@ -211,25 +265,15 @@ Do you want to change your kernel config?
 
   if [ "$?" -eq 0 ]; then
 
-    make -C debian/build/build_amd64_none_amd64 menuconfig
+    make menuconfig
 
   fi
 
-  # Compile kernel + headers
-
-  fakeroot make -f debian/rules.gen binary-arch_amd64_none_real
-
-  fakeroot make -j 3 -f debian/rules.gen binary-arch_amd64_none_amd64
-
-  # Install the lot
-
-  cd ..
-
-  dpkg -i linux-image*
-
-  dpkg -i linux-headers*
-
-  apt-get -f install
+    make-kpkg --rootcmd fakeroot clean
+    export CONCURRENCY_LEVEL=3
+    make-kpkg --rootcmd fakeroot --initrd kernel_image > ../build.log
+    cd ..
+    dpkg -i *.deb
 
 elif [ "$OS" = Ubuntu ] ; then
   echo "Nothing here (yet)"
