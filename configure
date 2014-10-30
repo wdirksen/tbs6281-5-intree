@@ -247,8 +247,6 @@ patch -p0 < ../Makefile.patch
 
 patch -p0 < ../force-dvb-c.patch
 
-# Set the kernel version
-
 if [ "$OS" = Debian ] ; then
 
   make oldconfig
