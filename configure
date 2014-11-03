@@ -46,11 +46,14 @@ show_help(){
   echo " --update=<opt>         [yes] no: don't clean local clone and"
   echo "                        don't pull in any updates."
   echo "                        "
+  echo " --sysupdate=<opt>      [yes] no: don't do apt-update and friends."
+  echo "                        "
   exit 0
 }
 
 vanilla_opt=""
 update_opt="yes"
+sysupdate_opt="yes"
 
 for opt do
   optval="${opt#*=}"
@@ -58,6 +61,8 @@ for opt do
   --vanilla=*) vanilla_opt="$optval"
   ;;
   --update=*) update_opt="$optval"
+  ;;
+  --sysupdate=*) sysupdate_opt="$optval"
   ;;
   --help) show_help
   ;;
@@ -76,6 +81,40 @@ if ! [ "$OS" = Debian -o "$OS" = Ubuntu ] ; then
 Your operating system is not supported.
 
 Should be Debian or Ubuntu.
+
+Aborting...
+\E[0m
+
+"
+  exit 0
+fi
+
+#
+# Check for minimum supported kernel version to build with
+# (should be 3.18-rc1 or up)
+#
+if [ "x$vanilla_opt" != "x" ]; then
+  MINVERSION="18"
+  VERSION=$( echo "$vanilla_opt" | cut -d'.' -f2 )
+  if [ "$VERSION" -lt "$MINVERSION" ]; then
+    echo -en "
+\E[1;33;44m
+This TBS6281/6285 driver is supported intree as of 3.18.x kernels.
+
+You requested a build with a $vanilla_opt kernel.
+
+Aborting...
+\E[0m
+
+"
+    exit 0
+  fi
+else
+  echo -en "
+\E[1;33;44m
+You did not enter a kernel version to use.
+
+Please use the --vanilla= option.
 
 Aborting...
 \E[0m
@@ -207,14 +246,15 @@ Aborting...
 fi
 
 # Get the system up-to-date
-
-apt-get update && apt-get dist-upgrade -y || die "Error(s) while updating your system"
+if [ "x$update_opt" = "xyes" ]; then
+  apt-get update && apt-get dist-upgrade -y || die "Error(s) while updating your system"
 
 # Install dependencies for building the kernel
 
-apt-get build-dep linux --no-install-recommends -y || die "Error installing \"build-dep linux\""
+  apt-get build-dep linux --no-install-recommends -y || die "Error installing \"build-dep linux\""
 
-apt-get install kernel-package bin86 devscripts binutils-dev crash libncurses5-dev libgtk2.0-dev libnuma-dev libperl-dev makedumpfile libelf-dev initramfs-tools --no-install-recommends -y || die "Error installing build dependencies"
+  apt-get install kernel-package bin86 devscripts binutils-dev crash libncurses5-dev libgtk2.0-dev libnuma-dev libperl-dev makedumpfile libelf-dev initramfs-tools --no-install-recommends -y || die "Error installing build dependencies"
+fi
 
 # Get the linux source
 if ! echo "$vanilla_opt" | grep "rc" > /dev/null 2>&1; then 
