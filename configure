@@ -89,19 +89,25 @@ Aborting...
   exit 0
 fi
 
-#
-# Check for minimum supported kernel version to build with
-# (should be 3.18-rc1 or up)
-#
-if [ "x$vanilla_opt" != "x" ]; then
-  MINVERSION="18"
-  VERSION=$( echo "$vanilla_opt" | cut -d'.' -f2 )
-  if [ "$VERSION" -lt "$MINVERSION" ]; then
+# Make sure that we are running as root
+
+if ! echo "$(whoami)" | grep "root" > /dev/null 2>&1; then
+  if [ "$OS" = Debian ]; then
     echo -en "
 \E[1;33;44m
-This TBS6281/6285 driver is supported intree as of 3.18.x kernels.
+You should run as root.
 
-You requested a build with a $vanilla_opt kernel.
+Aborting...
+\E[0m
+
+"
+    exit 0
+  else
+    echo -en "
+\E[1;33;44m
+You should run as root.
+
+Do \"sudo su\" and run me again.
 
 Aborting...
 \E[0m
@@ -109,18 +115,6 @@ Aborting...
 "
     exit 0
   fi
-else
-  echo -en "
-\E[1;33;44m
-You did not enter a kernel version to use.
-
-Please use the --vanilla= option.
-
-Aborting...
-\E[0m
-
-"
-  exit 0
 fi
 
 # Check git status
@@ -217,25 +211,19 @@ Aborting...
   fi    
 fi
 
-# Make sure that we are running as root
-
-if ! echo "$(whoami)" | grep "root" > /dev/null 2>&1; then
-  if [ "$OS" = Debian ]; then
+#
+# Check for minimum supported kernel version to build with
+# (should be 3.18-rc1 or up)
+#
+if [ "x$vanilla_opt" != "x" ]; then
+  MINVERSION="18"
+  VERSION=$( echo "$vanilla_opt" | cut -d'.' -f2 )
+  if [ "$VERSION" -lt "$MINVERSION" ]; then
     echo -en "
 \E[1;33;44m
-You should run as root.
+This TBS6281/6285 driver is supported intree as of 3.18.x kernels.
 
-Aborting...
-\E[0m
-
-"
-    exit 0
-  else
-    echo -en "
-\E[1;33;44m
-You should run as root.
-
-Do \"sudo su\" and run me again.
+You requested a build with a $vanilla_opt kernel.
 
 Aborting...
 \E[0m
@@ -243,6 +231,18 @@ Aborting...
 "
     exit 0
   fi
+else
+  echo -en "
+\E[1;33;44m
+You did not enter a kernel version to use.
+
+Please use the --vanilla= option.
+
+Aborting...
+\E[0m
+
+"
+  exit 0
 fi
 
 # Get the system up-to-date
