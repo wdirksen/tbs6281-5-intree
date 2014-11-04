@@ -254,7 +254,7 @@ if [ "x$sysupdate_opt" = "xyes" ]; then
 
   apt-get build-dep linux --no-install-recommends -y || die "Error installing \"build-dep linux\""
 
-  apt-get install kernel-package bin86 devscripts binutils-dev crash libncurses5-dev libgtk2.0-dev libnuma-dev libperl-dev makedumpfile libelf-dev initramfs-tools --no-install-recommends -y || die "Error installing build dependencies"
+  apt-get install kernel-package bin86 devscripts binutils-dev crash libncurses5-dev libnuma-dev libperl-dev makedumpfile libelf-dev python-six initramfs-tools --no-install-recommends -y || die "Error installing build dependencies"
 fi
 
 # Get the linux source
