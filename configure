@@ -217,7 +217,7 @@ fi
 #
 if [ "x$vanilla_opt" != "x" ]; then
   MINVERSION="18"
-  VERSION=$( echo "$vanilla_opt" | cut -d'.' -f2 )
+  VERSION=$( echo "$vanilla_opt" | cut -d'.' -f2 | cut -d'-' -f1 )
   if [ "$VERSION" -lt "$MINVERSION" ]; then
     echo -en "
 \E[1;33;44m
@@ -242,11 +242,12 @@ Aborting...
 \E[0m
 
 "
+  ./configure --help
   exit 0
 fi
 
 # Get the system up-to-date
-if [ "x$update_opt" = "xyes" ]; then
+if [ "x$sysupdate_opt" = "xyes" ]; then
   apt-get update && apt-get dist-upgrade -y || die "Error(s) while updating your system"
 
 # Install dependencies for building the kernel
@@ -261,6 +262,18 @@ if ! echo "$vanilla_opt" | grep "rc" > /dev/null 2>&1; then
   wget https://www.kernel.org/pub/linux/kernel/v3.x/linux-$vanilla_opt.tar.xz
 else
   wget https://www.kernel.org/pub/linux/kernel/v3.x/testing/linux-$vanilla_opt.tar.xz
+fi
+
+if ! [ "$?" -eq 0 ]; then
+  echo -en "
+\E[1;33;44m
+Failed to download $vanilla_opt.tar.xz.
+
+Aborting...
+\E[0m
+
+"
+  exit 1
 fi
 
 tar -xJf linux-$vanilla_opt.tar.xz && cd linux*
