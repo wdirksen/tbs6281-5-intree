@@ -267,7 +267,7 @@ fi
 if ! [ "$?" -eq 0 ]; then
   echo -en "
 \E[1;33;44m
-Failed to download $vanilla_opt.tar.xz.
+Failed to download requested  $vanilla_opt.tar.xz file.
 
 Aborting...
 \E[0m
