@@ -33,15 +33,6 @@
 #include "saa716x_spi.h"
 #include "saa716x_priv.h"
 
-#include "mb86a16.h"
-#include "stv6110x.h"
-#include "stv090x.h"
-#include "cx24117.h"
-#include "stb6100.h"
-#include "stb6100_cfg.h"
-#include "tda18212.h"
-#include "cxd2820r.h"
-
 #include "si2168.h"
 #include "si2157.h"
 
