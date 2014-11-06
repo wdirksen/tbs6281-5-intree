@@ -13,7 +13,7 @@ git clone https://github.com/bas-t/tbs6281-5-intree.git && cd tbs6281-5-intree
 ## wget <some kernel>
 ##
 
-wget https://www.kernel.org/pub/linux/kernel/v3.x/testing/linux-3.18-rc2.tar.xz
+wget https://www.kernel.org/pub/linux/kernel/v3.x/testing/linux-3.18-rc3.tar.xz
 
 tar -xJf *.xz && cd linux*
 
@@ -34,6 +34,8 @@ patch -p0 < ../Kconfig-1.patch
 patch -p0 < ../Kconfig-2.patch
 
 patch -p0 < ../Makefile.patch
+
+patch -p0 < ../uapi.patch
 
 ##
 ## Patch dvbdev.c for use with FFdecsawrapper
@@ -66,7 +68,7 @@ make-kpkg --rootcmd fakeroot clean
 
 export CONCURRENCY_LEVEL=3
 
-make-kpkg --rootcmd fakeroot --initrd kernel_image
+make-kpkg --rootcmd fakeroot --initrd kernel_image > ../build.log
 
 ##
 ## Install the kernel
