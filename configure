@@ -296,6 +296,8 @@ patch -p0 < ../Kconfig-2.patch
 
 patch -p0 < ../Makefile.patch
 
+patch -p0 < ../uapi.patch
+
 # Patch for use in DVB-C mode
 
 patch -p0 < ../force-dvb-c.patch
