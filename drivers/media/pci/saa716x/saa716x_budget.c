@@ -279,7 +279,7 @@ static void demux_worker(unsigned long data)
 			fgpi_entry->dma_buf[fgpi_entry->read_index].list_len,
 			PCI_DMA_FROMDEVICE);
 
-		dvb_dmx_swfilter(demux, data, 348 * 188);
+		dvb_dmx_swfilter_packets(demux, data, 188);
 
 		fgpi_entry->read_index = (fgpi_entry->read_index + 1) & 7;
 	} while (write_index != fgpi_entry->read_index);
