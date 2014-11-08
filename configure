@@ -48,12 +48,15 @@ show_help(){
   echo "                        "
   echo " --sysupdate=<opt>      [yes] no: don't do apt-update and friends."
   echo "                        "
+  echo " --dvb_c=<opt>          [yes] no: don't force the drivers into dvb-c mode"
+  echo "                        "
   exit 0
 }
 
 vanilla_opt=""
 update_opt="yes"
 sysupdate_opt="yes"
+dvbc_opt="yes"
 
 for opt do
   optval="${opt#*=}"
@@ -63,6 +66,8 @@ for opt do
   --update=*) update_opt="$optval"
   ;;
   --sysupdate=*) sysupdate_opt="$optval"
+  ;;
+  --dvb_c=*) dvbc_opt="$optval"
   ;;
   --help) show_help
   ;;
@@ -298,9 +303,10 @@ patch -p0 < ../Makefile.patch
 
 patch -p0 < ../uapi.patch
 
-# Patch for use in DVB-C mode
-
-patch -p0 < ../force-dvb-c.patch
+# Patch to force driver into DVB-C mode
+if [ "x$dvbc_opt" = "xyes" ]; then
+  patch -p0 < ../force-dvb-c.patch
+fi
 
 if [ "$OS" = Debian ] ; then
 
