@@ -254,13 +254,12 @@ fi
 # Get the system up-to-date
 if [ "x$sysupdate_opt" = "xyes" ]; then
   apt-get update && apt-get dist-upgrade -y || die "Error(s) while updating your system"
+fi
 
 # Install dependencies for building the kernel
+apt-get build-dep linux --no-install-recommends -y || die "Error installing \"build-dep linux\""
 
-  apt-get build-dep linux --no-install-recommends -y || die "Error installing \"build-dep linux\""
-
-  apt-get install kernel-package bin86 devscripts binutils-dev crash libncurses5-dev libnuma-dev libperl-dev makedumpfile libelf-dev python-six initramfs-tools --no-install-recommends -y || die "Error installing build dependencies"
-fi
+apt-get install kernel-package bin86 devscripts binutils-dev crash libncurses5-dev libnuma-dev libperl-dev makedumpfile libelf-dev python-six initramfs-tools --no-install-recommends -y || die "Error installing build dependencies"
 
 # Get the linux source
 if ! echo "$vanilla_opt" | grep "rc" > /dev/null 2>&1; then 
