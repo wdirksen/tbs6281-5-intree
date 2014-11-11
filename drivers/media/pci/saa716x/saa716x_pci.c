@@ -106,6 +106,7 @@ static int saa716x_request_irq(struct saa716x_dev *saa716x)
 			free_irq(saa716x->msix_entries[i].vector, saa716x);
 		}
 	}
+
 	if (saa716x->int_type == MODE_INTA) {
 		ret = request_irq(pdev->irq,
 				  config->irq_handler,
