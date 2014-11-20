@@ -43,6 +43,10 @@ show_help(){
   echo " --vanilla=<bool>       Set vanilla kernel to use,"
   echo "                        like 3.18-rc2"
   echo "                        "
+  echo " --linux_next=<opt>     [no] yes: compile a kernel from"
+  echo "                        current linux-next git repo."
+  echo "                        Using linux-next disables --vanilla"
+  echo "                        "
   echo " --update=<opt>         [yes] no: don't clean local clone and"
   echo "                        don't pull in any updates."
   echo "                        "
@@ -54,6 +58,7 @@ show_help(){
 }
 
 vanilla_opt=""
+linuxnext_opt="no"
 update_opt="yes"
 sysupdate_opt="yes"
 dvbc_opt="yes"
@@ -62,6 +67,8 @@ for opt do
   optval="${opt#*=}"
   case "$opt" in
   --vanilla=*) vanilla_opt="$optval"
+  ;;
+  --linux_next=*) linuxnext_opt="$optval"; vanilla_opt=""
   ;;
   --update=*) update_opt="$optval"
   ;;
@@ -236,7 +243,7 @@ Aborting...
 "
     exit 0
   fi
-else
+elif [ "x$linuxnext_opt" = "x" ]; then
   echo -en "
 \E[1;33;44m
 You did not enter a kernel version to use.
@@ -262,7 +269,9 @@ apt-get build-dep linux --no-install-recommends -y || die "Error installing \"bu
 apt-get install kernel-package bin86 devscripts binutils-dev crash libncurses5-dev libnuma-dev libperl-dev makedumpfile libelf-dev python-six initramfs-tools --no-install-recommends -y || die "Error installing build dependencies"
 
 # Get the linux source
-if ! echo "$vanilla_opt" | grep "rc" > /dev/null 2>&1; then 
+if [ "x$linuxnext_opt" = "xyes" ]; then
+  git clone --depth=1 git://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git ./linux
+elif ! echo "$vanilla_opt" | grep "rc" > /dev/null 2>&1; then 
   wget https://www.kernel.org/pub/linux/kernel/v3.x/linux-$vanilla_opt.tar.xz
 else
   wget https://www.kernel.org/pub/linux/kernel/v3.x/testing/linux-$vanilla_opt.tar.xz
@@ -271,7 +280,8 @@ fi
 if ! [ "$?" -eq 0 ]; then
   echo -en "
 \E[1;33;44m
-Failed to download requested  $vanilla_opt.tar.xz file.
+Failed to download requested  $vanilla_opt.tar.xz file,
+or failed to clone linux-next git repo.
 
 Aborting...
 \E[0m
@@ -280,7 +290,11 @@ Aborting...
   exit 1
 fi
 
-tar -xJf linux-$vanilla_opt.tar.xz && cd linux*
+if [ "x$linuxnext_opt" = "xyes" ]; then
+  cd linux
+else
+  tar -xJf linux-$vanilla_opt.tar.xz && cd linux*
+fi
 
 # Patch it for use with FFdecsawrapper
 
