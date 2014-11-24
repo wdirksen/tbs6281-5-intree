@@ -40,8 +40,9 @@ patch -p0 < ../uapi.patch
 
 ##
 ## I backported cx23885 changes from linux-next to support my
-## DVBSky T982 adapters (and others)
-## This is for the impatient, it will be in linux 3.19
+## DVBSky T982 adapters (other recently added adapters might work too)
+##
+## This is only for the very impatient, it will be in linux 3.19 !!!
 ## To use it in a 3.18 kernel, do:
 ##
 
@@ -54,7 +55,7 @@ patch -p0 < ../cx2385.patch
 patch -p1 < ../3.13-dvb-mutex.patch
 
 ##
-## Configure the kernel
+## Configure the kernel one way:
 ##
 
 make oldconfig
@@ -62,10 +63,19 @@ make oldconfig
 make menuconfig
 
 ##
-## In an ideal world, the adapters should appear as both DVB-T and DVB-C
-## In some cases they only show as DVB-T. That is bad news for those who want
-## to use their adapers in DVB-C mode. The good news is: it can be forced to
+## or the other (only amd64, compatible with Debian Wheezy and up, max 16 DVB adapters):
+##
+
+cp -f ../kernelconfig/amd64/3.18-rc6/config ./.config
+
+##
+## In an ideal world, the adapters should appear as both DVB-T/T2 and DVB-C
+## Current TVHeadend git repo (not any release) is known to do that in Debian Jessie.
+## However, in some cases they only show as DVB-T, since progs like MythTV cannot handle
+## multistandard adapers (might not be the only issue). That is bad news for those
+## who want to use their adapers in DVB-C mode. The good news is: it can be forced to
 ## DVB-C mode. Drawback: If you force them to DVB-C, DVB-T/T2 is unavailable.
+## Well, I guess you cant't use them in both DVB-C and DVB-T mode at the same time anyway.
 ##
 
 patch -p0 < ../force-dvb-c.patch
