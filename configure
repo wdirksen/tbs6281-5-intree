@@ -54,7 +54,7 @@ show_help(){
   echo "                        "
   echo " --dvb_c=<opt>          [yes] no: don't force the drivers into dvb-c mode"
   echo "                        "
-  echo " --tbs=<opt>            [yes] no: don't add saa716x psie bridge driver to"
+  echo " --tbs=<opt>            [yes] no: don't add saa716x pcie bridge driver to"
   echo "                        the build system."
   echo "                        "
   echo " --cx23885=<opt>        [yes] no: don't patch cx23885 for DVBSky T982 (and others),"
@@ -347,8 +347,8 @@ fi
 if [ "$OS" = Debian ] ; then
 
   echo -en "Going to configure your kernel.
-Choise: use suplied config file or do
-'make oldconfig'. Do you want to use suplied config?
+Choise: use supplied config file or do
+'make oldconfig'. Do you want to use supplied config?
 If you hit 'n', 'make oldconfig' starts.
 "
   confirmyes "Yes, use it. [Y/n]"
