@@ -54,7 +54,11 @@ show_help(){
   echo "                        "
   echo " --dvb_c=<opt>          [yes] no: don't force the drivers into dvb-c mode"
   echo "                        "
-  echo " --cx23885=<opt>        [no] yes: patch cx23885 for DVBSky T982 (and others)"
+  echo " --tbs=<opt>            [yes] no: don't add saa716x psie bridge driver to"
+  echo "                        the build system."
+  echo "                        "
+  echo " --cx23885=<opt>        [yes] no: don't patch cx23885 for DVBSky T982 (and others),"
+  echo "                        only for 3.18.x kernels"
   echo "                        "
   exit 0
 }
@@ -64,7 +68,8 @@ linuxnext_opt="no"
 update_opt="yes"
 sysupdate_opt="yes"
 dvbc_opt="yes"
-cx23885_opt="no"
+cx23885_opt="yes"
+tbs_opt="yes"
 
 for opt do
   optval="${opt#*=}"
@@ -78,6 +83,8 @@ for opt do
   --sysupdate=*) sysupdate_opt="$optval"
   ;;
   --dvb_c=*) dvbc_opt="$optval"
+  ;;
+  --tbs=*) tbs_opt="$optval"
   ;;
   --cx23885=*) cx23885_opt="$optval"
   ;;
@@ -253,15 +260,23 @@ elif [ "x$linuxnext_opt" = "x" ]; then
 \E[1;33;44m
 You did not enter a kernel version to use.
 
-Please use the --vanilla= option.
+Please use the --vanilla=<opt> or --linux_next=yes option.
 
 Aborting...
 \E[0m
 
 "
+  sleep 5
   ./configure --help
   exit 0
 fi
+
+# Get kernel version numbers
+
+SHORT_KERNEL=$( echo `uname -r` | grep -o '[[:digit:]]\+\.[[:digit:]]\+' )
+FIRST_DIGIT=$( echo `uname -r` | grep -o '[[:digit:]]\+' | head -n1 )
+SECOND_DIGIT=$( echo `uname -r` | grep -o '[[:digit:]]\+' | head -n2 | awk 'NR==2' )
+PATCHLEVEL=$( echo `uname -r` | grep -o '[[:digit:]]\+' | head -n3 | awk 'NR==3' )
 
 # Get the system up-to-date
 if [ "x$sysupdate_opt" = "xyes" ]; then
@@ -307,23 +322,21 @@ patch -p1 < ../3.13-dvb-mutex.patch
 
 # Add TBS drivers to the kernel
 
-mkdir drivers/media/pci/saa716x
-
-cp -f ../drivers/media/pci/saa716x/* drivers/media/pci/saa716x/
-
-patch -p0 < ../Kconfig.patch
-
-patch -p0 < ../Kconfig-1.patch
-
-patch -p0 < ../Kconfig-2.patch
-
-patch -p0 < ../Makefile.patch
-
-patch -p0 < ../uapi.patch
+if [ "x$tbs_opt" = "xyes" ]; then
+  mkdir drivers/media/pci/saa716x
+  cp -f ../drivers/media/pci/saa716x/* drivers/media/pci/saa716x/
+  patch -p0 < ../Kconfig.patch
+  patch -p0 < ../Kconfig-1.patch
+  patch -p0 < ../Kconfig-2.patch
+  patch -p0 < ../Makefile.patch
+  patch -p0 < ../uapi.patch
+fi
 
 # Patch to support DVBSky T982 (and others)
-if [ "x$cx23885_opt" = "xyes" ]; then
-  patch -p0 < ../cx23885.patch
+if [ "$SECOND_DIGIT" -lt 19 ]; then
+  if [ "x$cx23885_opt" = "xyes" ]; then
+    patch -p0 < ../cx23885.patch
+  fi
 fi
 
 # Patch to force driver into DVB-C mode
@@ -333,21 +346,33 @@ fi
 
 if [ "$OS" = Debian ] ; then
 
-  make oldconfig
+  echo -en "Going to configure your kernel.
+Choise: use suplied config file or do
+'make oldconfig'. Do you want to use suplied config?
+If you hit 'n', 'make oldconfig' starts.
+"
+  confirmyes "Yes, use it. [Y/n]"
+
+  if [ "$?" -eq 0 ]; then
+    cp -f ../kernelconfig/amd64/3.18-rc6/config ./.config
+  else
+    make oldconfig
 
   # Change the max num of DVB adapters
 
-  echo -en "
+    echo -en "
 Do you want to change your kernel config?
 
 (you have to, if you are using >4 DVB adapters)
 
 "
-  confirmyes "Yes, start menuconfig [Y/n]"
+    confirmyes "Yes, start menuconfig [Y/n]"
 
-  if [ "$?" -eq 0 ]; then
+    if [ "$?" -eq 0 ]; then
 
-    make menuconfig
+      make menuconfig
+
+    fi
 
   fi
 
