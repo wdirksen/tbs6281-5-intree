@@ -54,6 +54,8 @@ show_help(){
   echo "                        "
   echo " --dvb_c=<opt>          [yes] no: don't force the drivers into dvb-c mode"
   echo "                        "
+  echo " --cx23885=<opt>        [no] yes: patch cx23885 for DVBSky T982 (and others)"
+  echo "                        "
   exit 0
 }
 
@@ -62,6 +64,7 @@ linuxnext_opt="no"
 update_opt="yes"
 sysupdate_opt="yes"
 dvbc_opt="yes"
+cx23885_opt="no"
 
 for opt do
   optval="${opt#*=}"
@@ -75,6 +78,8 @@ for opt do
   --sysupdate=*) sysupdate_opt="$optval"
   ;;
   --dvb_c=*) dvbc_opt="$optval"
+  ;;
+  --cx23885=*) cx23885_opt="$optval"
   ;;
   --help) show_help
   ;;
@@ -315,6 +320,11 @@ patch -p0 < ../Kconfig-2.patch
 patch -p0 < ../Makefile.patch
 
 patch -p0 < ../uapi.patch
+
+# Patch to support DVBSky T982 (and others)
+if [ "x$cx23885_opt" = "xyes" ]; then
+  patch -p0 < ../cx23885.patch
+fi
 
 # Patch to force driver into DVB-C mode
 if [ "x$dvbc_opt" = "xyes" ]; then

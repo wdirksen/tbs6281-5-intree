@@ -13,7 +13,7 @@ git clone https://github.com/bas-t/tbs6281-5-intree.git && cd tbs6281-5-intree
 ## wget <some kernel>
 ##
 
-wget https://www.kernel.org/pub/linux/kernel/v3.x/testing/linux-3.18-rc3.tar.xz
+wget https://www.kernel.org/pub/linux/kernel/v3.x/testing/linux-3.18-rc6.tar.xz
 
 tar -xJf *.xz && cd linux*
 
@@ -21,6 +21,7 @@ make clean && make mrproper
 
 ##
 ## Add TBS 6281/6285 open source drivers to the kernel source
+## That is, for the saa716x pcie bridge chip. Demod and tuner are in linux-3.18
 ##
 
 mkdir drivers/media/pci/saa716x
@@ -36,6 +37,15 @@ patch -p0 < ../Kconfig-2.patch
 patch -p0 < ../Makefile.patch
 
 patch -p0 < ../uapi.patch
+
+##
+## I backported cx23885 changes from linux-next to support my
+## DVBSky T982 adapters (and others)
+## This is for the impatient, it will be in linux 3.19
+## To use it in a 3.18 kernel, do:
+##
+
+patch -p0 < ../cx2385.patch
 
 ##
 ## Patch dvbdev.c for use with FFdecsawrapper
