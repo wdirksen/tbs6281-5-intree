@@ -1243,4 +1243,17 @@
  	default:
  		return -ENODEV;
  	}
-
+--- a/drivers/media/dvb-frontends/si2168.c
++++ b/drivers/media/dvb-frontends/si2168.c
+@@ -498,10 +498,9 @@
+ 
+ 	s->fw_loaded = true;
+ 
+-warm:
+ 	dev_info(&s->client->dev, "found a '%s' in warm state\n",
+ 			si2168_ops.info.name);
+-
++warm:
+ 	s->active = true;
+ 
+ 	return 0;
