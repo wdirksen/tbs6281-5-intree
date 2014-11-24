@@ -63,19 +63,20 @@ make oldconfig
 make menuconfig
 
 ##
-## or the other (only amd64, compatible with Debian Wheezy and up, max 16 DVB adapters):
+## or the other (amd64, for Debian Wheezy and up, max 16 DVB adapters):
 ##
 
 cp -f ../kernelconfig/amd64/3.18-rc6/config ./.config
 
 ##
 ## In an ideal world, the adapters should appear as both DVB-T/T2 and DVB-C
-## Current TVHeadend git repo (not any release) is known to do that in Debian Jessie.
-## However, in some cases they only show as DVB-T, since progs like MythTV cannot handle
-## multistandard adapers (might not be the only issue). That is bad news for those
-## who want to use their adapers in DVB-C mode. The good news is: it can be forced to
-## DVB-C mode. Drawback: If you force them to DVB-C, DVB-T/T2 is unavailable.
-## Well, I guess you cant't use them in both DVB-C and DVB-T mode at the same time anyway.
+## Current TVHeadend git repo is known to do that in Debian Jessie.
+## However, in some cases they only show as DVB-T, since progs like MythTV
+## cannot handle multistandard adapers (might not be the only issue).
+## That is bad news for those who want to use their adapers in DVB-C mode.
+## The good news is: it can be forced to DVB-C mode. Drawback: If you force
+## them to DVB-C, DVB-T/T2 is unavailable. Well, I guess you cant't use them
+## in both DVB-C and DVB-T mode at the same time anyway.
 ##
 
 patch -p0 < ../force-dvb-c.patch
