@@ -1243,8 +1243,8 @@
  	default:
  		return -ENODEV;
  	}
---- a/drivers/media/dvb-frontends/si2168.c
-+++ b/drivers/media/dvb-frontends/si2168.c
+--- drivers/media/dvb-frontends/si2168.c
++++ drivers/media/dvb-frontends/si2168.c
 @@ -498,10 +498,9 @@
  
  	s->fw_loaded = true;
