@@ -379,8 +379,20 @@ Do you want to change your kernel config?
     make-kpkg --rootcmd fakeroot clean
     export CONCURRENCY_LEVEL=3
     make-kpkg --rootcmd fakeroot --initrd kernel_image > ../build.log
-    cd ..
-    dpkg -i *.deb
+    if [ "$?" -eq 0 ]; then
+      cd ..
+      dpkg -i *.deb
+    else
+      echo -en "
+\E[1;33;44m
+Your kernel did  not compile as it should.
+\E[0m
+
+Aborting...
+
+"
+      exit 1
+    fi
 
 elif [ "$OS" = Ubuntu ] ; then
   echo "Nothing here (yet)"
