@@ -859,7 +859,7 @@
  		i2c_bus = &dev->i2c_bus[0];
  		i2c_bus2 = &dev->i2c_bus[1];
  		switch (port->nr) {
-@@ -1680,6 +1807,200 @@
+@@ -1680,6 +1807,201 @@
  			break;
  		}
  		break;
@@ -1017,6 +1017,7 @@
 +		}
 +
 +		/* attach frontend */
++		si2168_config.i2c_adapter = &adapter;
 +		si2168_config.fe = &fe0->dvb.frontend;
 +		memset(&info, 0, sizeof(struct i2c_board_info));
 +		strlcpy(info.type, "si2168", I2C_NAME_SIZE);
@@ -1060,7 +1061,7 @@
  	default:
  		printk(KERN_INFO "%s: The frontend of your DVB/ATSC card "
  			" isn't supported yet\n",
-@@ -1754,7 +2075,10 @@
+@@ -1754,7 +2076,10 @@
  		memcpy(port->frontends.adapter.proposed_mac, eeprom + 0xa0, 6);
  		break;
  		}
@@ -1072,7 +1073,7 @@
  		u8 eeprom[256]; /* 24C02 i2c eeprom */
  
  		if (port->nr > 2)
-@@ -1764,12 +2088,67 @@
+@@ -1764,12 +2089,67 @@
  		dev->i2c_bus[0].i2c_client.addr = 0xa0 >> 1;
  		tveeprom_read(&dev->i2c_bus[0].i2c_client, eeprom,
  				sizeof(eeprom));
@@ -1142,7 +1143,7 @@
  	}
  
  	return ret;
-@@ -1810,7 +2189,7 @@
+@@ -1810,7 +2190,7 @@
  
  		fe0 = vb2_dvb_get_frontend(&port->frontends, i);
  		if (!fe0)
@@ -1151,7 +1152,7 @@
  
  		dprintk(1, "%s\n", __func__);
  		dprintk(1, " ->probed by Card=%d Name=%s, PCI %02x:%02x\n",
-@@ -1853,6 +2232,13 @@
+@@ -1853,6 +2233,13 @@
  	struct vb2_dvb_frontend *fe0;
  	struct i2c_client *client;
  
