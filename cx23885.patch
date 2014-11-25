@@ -1,5 +1,5 @@
 --- drivers/media/pci/cx23885/cx23885-cards.c	2014-11-24 00:25:20.000000000 +0100
-+++ drivers/media/pci/cx23885/cx23885-cards.c	2014-11-24 12:24:27.890341515 +0100
++++ drivers/media/pci/cx23885/cx23885-cards.c	2014-11-25 09:33:40.219319975 +0100
 @@ -680,6 +680,32 @@
  		.portb		= CX23885_MPEG_DVB,
  		.portc		= CX23885_MPEG_DVB,
@@ -209,7 +209,7 @@
  				&dev->i2c_bus[2].i2c_adap,
  				"cx25840", 0x88 >> 1, NULL);
 --- drivers/media/pci/cx23885/cx23885-core.c	2014-11-24 00:25:20.000000000 +0100
-+++ drivers/media/pci/cx23885/cx23885-core.c	2014-11-24 12:25:32.717123612 +0100
++++ drivers/media/pci/cx23885/cx23885-core.c	2014-11-25 09:33:40.219319975 +0100
 @@ -1078,7 +1078,7 @@
  	for (line = 0; line < lines; line++) {
  		while (offset && offset >= sg_dma_len(sg)) {
@@ -237,7 +237,7 @@
  			*(rp++) = cpu_to_le32(RISC_WRITE|RISC_EOL|todo);
  			*(rp++) = cpu_to_le32(sg_dma_address(sg));
 --- drivers/media/pci/cx23885/cx23885-dvb.c	2014-11-24 00:25:20.000000000 +0100
-+++ drivers/media/pci/cx23885/cx23885-dvb.c	2014-11-24 12:26:23.536168928 +0100
++++ drivers/media/pci/cx23885/cx23885-dvb.c	2014-11-25 09:47:46.193704392 +0100
 @@ -71,6 +71,7 @@
  #include "si2165.h"
  #include "si2168.h"
@@ -859,7 +859,7 @@
  		i2c_bus = &dev->i2c_bus[0];
  		i2c_bus2 = &dev->i2c_bus[1];
  		switch (port->nr) {
-@@ -1680,6 +1807,201 @@
+@@ -1680,6 +1807,200 @@
  			break;
  		}
  		break;
@@ -1017,7 +1017,6 @@
 +		}
 +
 +		/* attach frontend */
-+		si2168_config.i2c_adapter = &adapter;
 +		si2168_config.fe = &fe0->dvb.frontend;
 +		memset(&info, 0, sizeof(struct i2c_board_info));
 +		strlcpy(info.type, "si2168", I2C_NAME_SIZE);
@@ -1035,6 +1034,7 @@
 +		port->i2c_client_demod = client_demod;
 +
 +		/* attach tuner */
++		memset(&si2157_config, 0, sizeof(si2157_config));
 +		si2157_config.fe = fe0->dvb.frontend;
 +		memset(&info, 0, sizeof(struct i2c_board_info));
 +		strlcpy(info.type, "si2157", I2C_NAME_SIZE);
@@ -1060,7 +1060,7 @@
  	default:
  		printk(KERN_INFO "%s: The frontend of your DVB/ATSC card "
  			" isn't supported yet\n",
-@@ -1754,7 +2076,10 @@
+@@ -1754,7 +2075,10 @@
  		memcpy(port->frontends.adapter.proposed_mac, eeprom + 0xa0, 6);
  		break;
  		}
@@ -1072,7 +1072,7 @@
  		u8 eeprom[256]; /* 24C02 i2c eeprom */
  
  		if (port->nr > 2)
-@@ -1764,12 +2089,67 @@
+@@ -1764,12 +2088,67 @@
  		dev->i2c_bus[0].i2c_client.addr = 0xa0 >> 1;
  		tveeprom_read(&dev->i2c_bus[0].i2c_client, eeprom,
  				sizeof(eeprom));
@@ -1142,7 +1142,7 @@
  	}
  
  	return ret;
-@@ -1810,7 +2190,7 @@
+@@ -1810,7 +2189,7 @@
  
  		fe0 = vb2_dvb_get_frontend(&port->frontends, i);
  		if (!fe0)
@@ -1151,7 +1151,7 @@
  
  		dprintk(1, "%s\n", __func__);
  		dprintk(1, " ->probed by Card=%d Name=%s, PCI %02x:%02x\n",
-@@ -1853,6 +2233,13 @@
+@@ -1853,6 +2232,13 @@
  	struct vb2_dvb_frontend *fe0;
  	struct i2c_client *client;
  
@@ -1166,7 +1166,7 @@
  	client = port->i2c_client_tuner;
  	if (client) {
 --- drivers/media/pci/cx23885/cx23885.h	2014-11-24 00:25:20.000000000 +0100
-+++ drivers/media/pci/cx23885/cx23885.h	2014-11-24 12:30:01.484075127 +0100
++++ drivers/media/pci/cx23885/cx23885.h	2014-11-25 09:33:40.219319975 +0100
 @@ -93,6 +93,12 @@
  #define CX23885_BOARD_HAUPPAUGE_IMPACTVCBE     43
  #define CX23885_BOARD_DVICO_FUSIONHDTV_DVB_T_DUAL_EXP2 44
@@ -1189,7 +1189,7 @@
  	int (*set_frontend)(struct dvb_frontend *fe);
  	int (*fe_set_voltage)(struct dvb_frontend *fe,
 --- drivers/media/pci/cx23885/cx23885-input.c	2014-11-24 00:25:20.000000000 +0100
-+++ drivers/media/pci/cx23885/cx23885-input.c	2014-11-24 12:27:27.950958907 +0100
++++ drivers/media/pci/cx23885/cx23885-input.c	2014-11-25 09:33:40.219319975 +0100
 @@ -87,6 +87,13 @@
  	case CX23885_BOARD_MYGICA_X8507:
  	case CX23885_BOARD_TBS_6980:
