@@ -46,7 +46,7 @@ patch -p0 < ../uapi.patch
 ## To use it in a 3.18 kernel, do:
 ##
 
-patch -p0 < ../cx2385.patch
+patch -p0 < ../cx23885.patch
 
 ##
 ## Patch dvbdev.c for use with FFdecsawrapper
