@@ -52,7 +52,7 @@ patch -p0 < ../cx23885.patch
 ## Patch dvbdev.c for use with FFdecsawrapper
 ##
 
-patch -p1 < ../3.13-dvb-mutex.patch
+patch -p1 < ../dvb-core.patch
 
 ##
 ## Configure the kernel one way:
@@ -107,7 +107,7 @@ dpkg -i *.deb
 cp -f firmware/* /lib/firmware/
 
 ##
-## Set msi mode
+## Set msi mode for saa716x based TBS adapters.
 ##
 
 echo "options saa716x_budget int_type=1" > /etc/modprobe.d/tbs_opensource.conf
