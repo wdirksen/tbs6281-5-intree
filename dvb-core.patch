@@ -1,14 +1,5 @@
 --- drivers/media/dvb-core/dvbdev.c	2014-12-01 01:42:27.000000000 +0100
 +++ drivers/media/dvb-core/dvbdev.c	2014-12-01 16:30:50.565898179 +0100
-@@ -47,7 +47,7 @@
- 
- static const char * const dnames[] = {
- 	"video", "audio", "sec", "frontend", "demux", "dvr", "ca",
--	"net", "osd"
-+	"net", "osd", "ci", "mod", "ns", "nsd"
- };
- 
- #ifdef CONFIG_DVB_DYNAMIC_MINORS
 @@ -68,7 +68,7 @@
  {
  	struct dvb_device *dvbdev;
@@ -41,16 +32,3 @@
  
  static int dvb_uevent(struct device *dev, struct kobj_uevent_env *env)
  {
---- drivers/media/dvb-core/dvbdev.h	2014-12-01 01:42:27.000000000 +0100
-+++ drivers/media/dvb-core/dvbdev.h	2014-12-01 16:33:56.214363625 +0100
-@@ -47,6 +47,10 @@
- #define DVB_DEVICE_CA         6
- #define DVB_DEVICE_NET        7
- #define DVB_DEVICE_OSD        8
-+#define DVB_DEVICE_CI         9
-+#define DVB_DEVICE_MOD       10
-+#define DVB_DEVICE_NS        11
-+#define DVB_DEVICE_NSD       12
- 
- #define DVB_DEFINE_MOD_OPT_ADAPTER_NR(adapter_nr) \
- 	static short adapter_nr[] = \
