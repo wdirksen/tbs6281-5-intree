@@ -13,7 +13,7 @@ git clone https://github.com/bas-t/tbs6281-5-intree.git && cd tbs6281-5-intree
 ## wget <some kernel>
 ##
 
-wget https://www.kernel.org/pub/linux/kernel/v3.x/testing/linux-3.18-rc6.tar.xz
+wget https://www.kernel.org/pub/linux/kernel/v3.x/linux-3.18.tar.xz
 
 tar -xJf *.xz && cd linux*
 
