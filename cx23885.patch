@@ -208,34 +208,6 @@
  		dev->sd_cx25840 = v4l2_i2c_new_subdev(&dev->v4l2_dev,
  				&dev->i2c_bus[2].i2c_adap,
  				"cx25840", 0x88 >> 1, NULL);
---- drivers/media/pci/cx23885/cx23885-core.c	2014-11-24 00:25:20.000000000 +0100
-+++ drivers/media/pci/cx23885/cx23885-core.c	2014-11-25 09:33:40.219319975 +0100
-@@ -1078,7 +1078,7 @@
- 	for (line = 0; line < lines; line++) {
- 		while (offset && offset >= sg_dma_len(sg)) {
- 			offset -= sg_dma_len(sg);
--			sg++;
-+			sg = sg_next(sg);
- 		}
- 
- 		if (lpi && line > 0 && !(line % lpi))
-@@ -1101,14 +1101,14 @@
- 			*(rp++) = cpu_to_le32(0); /* bits 63-32 */
- 			todo -= (sg_dma_len(sg)-offset);
- 			offset = 0;
--			sg++;
-+			sg = sg_next(sg);
- 			while (todo > sg_dma_len(sg)) {
- 				*(rp++) = cpu_to_le32(RISC_WRITE|
- 						    sg_dma_len(sg));
- 				*(rp++) = cpu_to_le32(sg_dma_address(sg));
- 				*(rp++) = cpu_to_le32(0); /* bits 63-32 */
- 				todo -= sg_dma_len(sg);
--				sg++;
-+				sg = sg_next(sg);
- 			}
- 			*(rp++) = cpu_to_le32(RISC_WRITE|RISC_EOL|todo);
- 			*(rp++) = cpu_to_le32(sg_dma_address(sg));
 --- drivers/media/pci/cx23885/cx23885-dvb.c	2014-11-24 00:25:20.000000000 +0100
 +++ drivers/media/pci/cx23885/cx23885-dvb.c	2014-11-25 09:47:46.193704392 +0100
 @@ -71,6 +71,7 @@
