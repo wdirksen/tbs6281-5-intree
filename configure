@@ -329,6 +329,7 @@ if [ "x$tbs_opt" = "xyes" ]; then
   patch -p0 < ../Kconfig-2.patch
   patch -p0 < ../Makefile.patch
   patch -p0 < ../uapi.patch
+  patch -p0 < ../silabs.patch
 fi
 
 # Patch to support DVBSky T982 (and others)

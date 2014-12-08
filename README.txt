@@ -38,6 +38,8 @@ patch -p0 < ../Makefile.patch
 
 patch -p0 < ../uapi.patch
 
+patch -p0 < ../silabs.patch
+
 ##
 ## I backported cx23885 changes from linux-next to support my
 ## DVBSky T982 adapters (other recently added adapters might work too)
