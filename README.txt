@@ -54,7 +54,7 @@ patch -p0 < ../cx23885.patch
 ## Patch dvbdev.c for use with FFdecsawrapper
 ##
 
-patch -p1 < ../dvb-core.patch
+patch -p0 < ../dvb-core.patch
 
 ##
 ## Configure the kernel one way:
