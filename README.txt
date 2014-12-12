@@ -30,10 +30,6 @@ cp -f ../drivers/media/pci/saa716x/* drivers/media/pci/saa716x/
 
 patch -p0 < ../Kconfig.patch
 
-patch -p0 < ../Kconfig-1.patch
-
-patch -p0 < ../Kconfig-2.patch
-
 patch -p0 < ../Makefile.patch
 
 patch -p0 < ../uapi.patch
@@ -81,7 +77,7 @@ cp -f ../kernelconfig/amd64/3.18-rc6/config ./.config
 ## in both DVB-C and DVB-T mode at the same time anyway.
 ##
 
-patch -p0 < ../force-dvb-c.patch
+sed -i 's/SYS_DVBT, SYS_DVBT2, SYS_DVBC_ANNEX_A/SYS_DVBC_ANNEX_A/' drivers/media/dvb-frontends/si2168.c
 
 ##
 ## Compile the kernel (Debian style)

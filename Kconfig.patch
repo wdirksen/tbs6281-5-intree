@@ -1,5 +1,5 @@
---- drivers/media/dvb-frontends/Kconfig	2014-10-20 03:08:38.000000000 +0200
-+++ drivers/media/dvb-frontends/Kconfig	2014-10-24 14:28:15.573798453 +0200
+--- drivers/media/dvb-frontends/Kconfig	2014-12-07 23:21:05.000000000 +0100
++++ drivers/media/dvb-frontends/Kconfig	2014-12-12 10:27:49.661903956 +0100
 @@ -467,7 +467,7 @@
  config DVB_SI2168
  	tristate "Silicon Labs Si2168"
@@ -8,4 +8,25 @@
 +	default m
  	help
  	  Say Y when you want to support this frontend.
+ 
+--- drivers/media/pci/Kconfig	2014-12-07 23:21:05.000000000 +0100
++++ drivers/media/pci/Kconfig	2014-12-12 10:25:02.325177377 +0100
+@@ -30,6 +30,7 @@
+ source "drivers/media/pci/cx25821/Kconfig"
+ source "drivers/media/pci/cx88/Kconfig"
+ source "drivers/media/pci/bt8xx/Kconfig"
++source "drivers/media/pci/saa716x/Kconfig"
+ source "drivers/media/pci/saa7134/Kconfig"
+ source "drivers/media/pci/saa7164/Kconfig"
+ 
+--- drivers/media/tuners/Kconfig	2014-12-07 23:21:05.000000000 +0100
++++ drivers/media/tuners/Kconfig	2014-12-12 10:26:44.065616467 +0100
+@@ -242,7 +242,7 @@
+ config MEDIA_TUNER_SI2157
+ 	tristate "Silicon Labs Si2157 silicon tuner"
+ 	depends on MEDIA_SUPPORT && I2C
+-	default m if !MEDIA_SUBDRV_AUTOSELECT
++	default m
+ 	help
+ 	  Silicon Labs Si2157 silicon tuner driver.
  
