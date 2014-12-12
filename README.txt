@@ -12,10 +12,10 @@ git clone https://github.com/bas-t/tbs6281-5-intree.git && cd tbs6281-5-intree
 ##
 ## wget <some kernel>
 ##
+## linux3.19 is not there yet, so try to build linux-next
+##
 
-wget https://www.kernel.org/pub/linux/kernel/v3.x/linux-3.18.tar.xz
-
-tar -xJf *.xz && cd linux*
+git clone --depth=1 git://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git ./linux && cd linux*
 
 make clean && make mrproper
 
