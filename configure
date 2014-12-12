@@ -54,12 +54,6 @@ show_help(){
   echo "                        "
   echo " --dvb_c=<opt>          [yes] no: don't force the drivers into dvb-c mode"
   echo "                        "
-  echo " --tbs=<opt>            [yes] no: don't add saa716x pcie bridge driver to"
-  echo "                        the build system."
-  echo "                        "
-  echo " --cx23885=<opt>        [yes] no: don't patch cx23885 for DVBSky T982 (and others),"
-  echo "                        only for 3.18.x kernels"
-  echo "                        "
   exit 0
 }
 
@@ -68,8 +62,6 @@ linuxnext_opt="no"
 update_opt="yes"
 sysupdate_opt="yes"
 dvbc_opt="yes"
-cx23885_opt="yes"
-tbs_opt="yes"
 
 for opt do
   optval="${opt#*=}"
@@ -83,10 +75,6 @@ for opt do
   --sysupdate=*) sysupdate_opt="$optval"
   ;;
   --dvb_c=*) dvbc_opt="$optval"
-  ;;
-  --tbs=*) tbs_opt="$optval"
-  ;;
-  --cx23885=*) cx23885_opt="$optval"
   ;;
   --help) show_help
   ;;
@@ -237,15 +225,15 @@ fi
 
 #
 # Check for minimum supported kernel version to build with
-# (should be 3.18-rc1 or up)
+# (should be 3.19-rc1 or up)
 #
 if [ "x$vanilla_opt" != "x" ]; then
-  MINVERSION="18"
+  MINVERSION="19"
   VERSION=$( echo "$vanilla_opt" | cut -d'.' -f2 | cut -d'-' -f1 )
   if [ "$VERSION" -lt "$MINVERSION" ]; then
     echo -en "
 \E[1;33;44m
-This TBS6281/6285 driver is supported intree as of 3.18.x kernels.
+This TBS6281/6285 driver is supported intree as of 3.19.x kernels.
 
 You requested a build with a $vanilla_opt kernel.
 
@@ -321,27 +309,15 @@ patch -p0 < ../dvb-core.patch
 
 # Add TBS drivers to the kernel
 
-if [ "x$tbs_opt" = "xyes" ]; then
-  mkdir drivers/media/pci/saa716x
-  cp -f ../drivers/media/pci/saa716x/* drivers/media/pci/saa716x/
-  patch -p0 < ../Kconfig.patch
-  patch -p0 < ../Kconfig-1.patch
-  patch -p0 < ../Kconfig-2.patch
-  patch -p0 < ../Makefile.patch
-  patch -p0 < ../uapi.patch
-  patch -p0 < ../silabs.patch
-fi
-
-# Patch to support DVBSky T982 (and others)
-if [ "$SECOND_DIGIT" -lt 19 ]; then
-  if [ "x$cx23885_opt" = "xyes" ]; then
-    patch -p0 < ../cx23885.patch
-  fi
-fi
+mkdir drivers/media/pci/saa716x
+cp -f ../drivers/media/pci/saa716x/* drivers/media/pci/saa716x/
+patch -p0 < ../Kconfig.patch
+patch -p0 < ../Makefile.patch
+patch -p0 < ../uapi.patch
 
 # Patch to force driver into DVB-C mode
 if [ "x$dvbc_opt" = "xyes" ]; then
-  patch -p0 < ../force-dvb-c.patch
+  sed -i 's/SYS_DVBT, SYS_DVBT2, SYS_DVBC_ANNEX_A/SYS_DVBC_ANNEX_A/' drivers/media/dvb-frontends/si2168.c
 fi
 
 if [ "$OS" = Debian ] ; then
@@ -362,8 +338,6 @@ If you hit 'n', 'make oldconfig' starts.
 
     echo -en "
 Do you want to change your kernel config?
-
-(you have to, if you are using >4 DVB adapters)
 
 "
     confirmyes "Yes, start menuconfig [Y/n]"

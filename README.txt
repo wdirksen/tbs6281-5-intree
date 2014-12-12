@@ -1,7 +1,7 @@
 ##
 ## HOW-TO
 ##
-## For use with linux-3.18 and up
+## For use with linux-3.19 and up
 ##
 
 
@@ -34,18 +34,6 @@ patch -p0 < ../Makefile.patch
 
 patch -p0 < ../uapi.patch
 
-patch -p0 < ../silabs.patch
-
-##
-## I backported cx23885 changes from linux-next to support my
-## DVBSky T982 adapters (other recently added adapters might work too)
-##
-## This is only for the very impatient, it will be in linux 3.19 !!!
-## To use it in a 3.18 kernel, do:
-##
-
-patch -p0 < ../cx23885.patch
-
 ##
 ## Patch dvbdev.c for use with FFdecsawrapper
 ##
@@ -53,18 +41,12 @@ patch -p0 < ../cx23885.patch
 patch -p0 < ../dvb-core.patch
 
 ##
-## Configure the kernel one way:
+## Configure the kernel
 ##
 
 make oldconfig
 
 make menuconfig
-
-##
-## or the other (amd64, for Debian Wheezy and up, max 16 DVB adapters):
-##
-
-cp -f ../kernelconfig/amd64/3.18-rc6/config ./.config
 
 ##
 ## In an ideal world, the adapters should appear as both DVB-T/T2 and DVB-C
