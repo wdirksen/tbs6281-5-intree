@@ -129,6 +129,11 @@ Aborting...
   fi
 fi
 
+# Install dependencies for building the kernel
+apt-get build-dep linux --no-install-recommends -y || die "Error installing \"build-dep linux\""
+
+apt-get install kernel-package bin86 devscripts binutils-dev crash libncurses5-dev libnuma-dev libperl-dev makedumpfile libelf-dev python-six initramfs-tools git-core --no-install-recommends -y || die "Error installing build dependencies"
+
 # Check git status
 if [ "x$update_opt" = "xyes" ]; then
   git clean -xfd > /dev/null
@@ -271,11 +276,6 @@ PATCHLEVEL=$( echo `uname -r` | grep -o '[[:digit:]]\+' | head -n3 | awk 'NR==3'
 if [ "x$sysupdate_opt" = "xyes" ]; then
   apt-get update && apt-get dist-upgrade -y || die "Error(s) while updating your system"
 fi
-
-# Install dependencies for building the kernel
-apt-get build-dep linux --no-install-recommends -y || die "Error installing \"build-dep linux\""
-
-apt-get install kernel-package bin86 devscripts binutils-dev crash libncurses5-dev libnuma-dev libperl-dev makedumpfile libelf-dev python-six initramfs-tools git-core --no-install-recommends -y || die "Error installing build dependencies"
 
 # Get the linux source
 if [ "x$linuxnext_opt" = "xyes" ]; then
