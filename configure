@@ -323,10 +323,13 @@ fi
 
 if [ "$OS" = Debian ] ; then
 
-  echo -en "Going to configure your kernel.
+  echo -en "
+Going to configure your kernel.
+
 Choise: use supplied config file or do
 'make oldconfig'. Do you want to use supplied config?
 If you hit 'n', 'make oldconfig' starts.
+
 "
   confirmyes "Yes, use it. [Y/n]"
 
@@ -334,7 +337,7 @@ If you hit 'n', 'make oldconfig' starts.
     cp -f ../kernelconfig/amd64/3.18.1/config ./.config
   else
     make oldconfig
-
+  fi
   # Change the max num of DVB adapters
 
     echo -en "
