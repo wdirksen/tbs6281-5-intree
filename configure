@@ -331,7 +331,7 @@ If you hit 'n', 'make oldconfig' starts.
   confirmyes "Yes, use it. [Y/n]"
 
   if [ "$?" -eq 0 ]; then
-    cp -f ../kernelconfig/amd64/3.18-rc6/config ./.config
+    cp -f ../kernelconfig/amd64/3.18.1/config ./.config
   else
     make oldconfig
 
