@@ -347,12 +347,8 @@ Do you want to change your kernel config?
     confirmyes "Yes, start menuconfig [Y/n]"
 
     if [ "$?" -eq 0 ]; then
-
       make menuconfig
-
     fi
-
-  fi
 
     make-kpkg --rootcmd fakeroot clean
     export CONCURRENCY_LEVEL=3
