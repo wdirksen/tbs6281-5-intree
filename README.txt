@@ -5,7 +5,7 @@
 ##
 
 
-git clone https://github.com/bas-t/tbs6281-5-intree.git && cd tbs6281-5-intree
+git clone https://github.com/bas-t/saa716x-intree.git && cd saa716x-intree
 
 ##
 ## Get and prepare the kernel source
