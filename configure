@@ -41,7 +41,7 @@ show_help(){
   echo " --help                 Print this message"
   echo "                        "
   echo " --vanilla=<bool>       Set vanilla kernel to use,"
-  echo "                        like 3.18-rc2"
+  echo "                        like 3.19-rc1"
   echo "                        "
   echo " --linux_next=<opt>     [no] yes: compile a kernel from"
   echo "                        current linux-next git repo."
@@ -52,7 +52,7 @@ show_help(){
   echo "                        "
   echo " --sysupdate=<opt>      [yes] no: don't do apt-update and friends."
   echo "                        "
-  echo " --dvb_c=<opt>          [yes] no: don't force the drivers into dvb-c mode"
+  echo " --dvb_c=<opt>          [yes] no: don't force si2168 into dvb-c mode"
   echo "                        "
   exit 0
 }
@@ -132,7 +132,7 @@ fi
 # Install dependencies for building the kernel
 apt-get build-dep linux --no-install-recommends -y || die "Error installing \"build-dep linux\""
 
-apt-get install kernel-package bin86 devscripts binutils-dev crash libncurses5-dev libnuma-dev libperl-dev makedumpfile libelf-dev python-six initramfs-tools git-core --no-install-recommends -y || die "Error installing build dependencies"
+apt-get install kernel-package bin86 devscripts binutils-dev crash libncurses5-dev libnuma-dev libperl-dev makedumpfile libelf-dev python-six initramfs-tools git-core libfile-fcntllock-perl --no-install-recommends -y || die "Error installing build dependencies"
 
 # Check git status
 if [ "x$update_opt" = "xyes" ]; then
