@@ -12,10 +12,10 @@ git clone https://github.com/bas-t/saa716x-intree.git && cd saa716x-intree
 ##
 ## wget <some 3.19 or up kernel>
 ##
-## linux-3.19 is not there yet, so try to build linux-next
-##
 
-git clone --depth=1 git://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git ./linux && cd linux*
+wget https://www.kernel.org/pub/linux/kernel/v3.x/testing/linux-3.19-rc1.tar.xz
+
+tar -xJf linux* && cd linux*
 
 make clean && make mrproper
 
