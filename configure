@@ -373,7 +373,7 @@ elif [ "$OS" = Ubuntu ] ; then
 fi
 
 # Install the firmware
-if [ ! -z /lib/firmware ]; then
+if [ ! -d /lib/firmware ]; then
   mkdir /lib/firmware
 fi
 
