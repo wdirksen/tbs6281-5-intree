@@ -1,5 +1,36 @@
---- drivers/media/pci/Kconfig	2014-12-07 23:21:05.000000000 +0100
-+++ drivers/media/pci/Kconfig	2014-12-12 10:25:02.325177377 +0100
+--- drivers/media/dvb-frontends/Kconfig	2014-12-21 02:08:50.000000000 +0100
++++ drivers/media/dvb-frontends/Kconfig	2014-12-23 23:10:50.591291305 +0100
+@@ -724,6 +724,13 @@
+ 	help
+ 	  An SEC control chip.
+ 
++config DVB_ISL6422
++	tristate "ISL6422[B] SEC controller"
++	depends on DVB_CORE && I2C
++	default m if !MEDIA_SUBDRV_AUTOSELECT
++	help
++	  A Dual SEC controller chip from Intersil
++
+ config DVB_ISL6423
+ 	tristate "ISL6423 SEC controller"
+ 	depends on DVB_CORE && I2C
+@@ -743,6 +750,14 @@
+ 	help
+ 	  CIMaX SP2/SP2HF Common Interface module.
+ 
++config DVB_TAS2101
++	tristate "Tmax TAS2101 based"
++	depends on DVB_CORE && I2C
++	default m if !MEDIA_SUBDRV_AUTOSELECT
++	help
++	  A DVB-S demod and tuner module.
++	  Say Y when you want to support this frontend.
++
+ config DVB_LGS8GL5
+ 	tristate "Silicon Legend LGS-8GL5 demodulator (OFDM)"
+ 	depends on DVB_CORE && I2C
+--- drivers/media/pci/Kconfig	2014-12-21 02:08:50.000000000 +0100
++++ drivers/media/pci/Kconfig	2014-12-23 23:00:27.975543017 +0100
 @@ -30,6 +30,7 @@
  source "drivers/media/pci/cx25821/Kconfig"
  source "drivers/media/pci/cx88/Kconfig"
@@ -8,4 +39,19 @@
  source "drivers/media/pci/saa7134/Kconfig"
  source "drivers/media/pci/saa7164/Kconfig"
  
-
+--- drivers/media/tuners/Kconfig	2014-12-21 02:08:50.000000000 +0100
++++ drivers/media/tuners/Kconfig	2014-12-23 23:13:22.612206468 +0100
+@@ -269,6 +269,13 @@
+ 	help
+ 	  Rafael Micro R820T silicon tuner driver.
+ 
++config MEDIA_TUNER_AV201X
++	tristate "Airoha Technology AV201x silicon tuner"
++	depends on MEDIA_SUPPORT && I2C
++	default m if !MEDIA_SUBDRV_AUTOSELECT
++	help
++	  Airoha Technology AV201x silicon tuner driver.
++
+ config MEDIA_TUNER_MXL301RF
+ 	tristate "MaxLinear MxL301RF tuner"
+ 	depends on MEDIA_SUPPORT && I2C
