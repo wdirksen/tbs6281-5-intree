@@ -7,7 +7,7 @@
 +config DVB_ISL6422
 +	tristate "ISL6422[B] SEC controller"
 +	depends on DVB_CORE && I2C
-+	default m if !MEDIA_SUBDRV_AUTOSELECT
++	default m
 +	help
 +	  A Dual SEC controller chip from Intersil
 +
@@ -21,7 +21,7 @@
 +config DVB_TAS2101
 +	tristate "Tmax TAS2101 based"
 +	depends on DVB_CORE && I2C
-+	default m if !MEDIA_SUBDRV_AUTOSELECT
++	default m
 +	help
 +	  A DVB-S demod and tuner module.
 +	  Say Y when you want to support this frontend.
@@ -48,7 +48,7 @@
 +config MEDIA_TUNER_AV201X
 +	tristate "Airoha Technology AV201x silicon tuner"
 +	depends on MEDIA_SUPPORT && I2C
-+	default m if !MEDIA_SUBDRV_AUTOSELECT
++	default m
 +	help
 +	  Airoha Technology AV201x silicon tuner driver.
 +

@@ -5,7 +5,7 @@
 ##
 
 
-git clone https://github.com/bas-t/saa716x-intree.git && cd saa716x-intree
+git clone https://github.com/bas-t/saa716x-intree.git -b wessel && cd saa716x-intree
 
 ##
 ## Get and prepare the kernel source
@@ -27,6 +27,10 @@ make clean && make mrproper
 mkdir drivers/media/pci/saa716x
 
 cp -f ../drivers/media/pci/saa716x/* drivers/media/pci/saa716x/
+
+cp -f ../drivers/media/tuners/* drivers/media/tuners/
+
+cp -f ../drivers/media/dvb-frontends/* drivers/media/dvb-frontends/
 
 patch -p0 < ../Kconfig.patch
 
