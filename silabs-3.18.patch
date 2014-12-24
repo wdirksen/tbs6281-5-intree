@@ -1,6 +1,5 @@
-diff -Nur drivers/media.orig/dvb-frontends/si2168.c drivers/media/dvb-frontends/si2168.c
---- drivers/media.orig/dvb-frontends/si2168.c	2014-12-21 02:08:50.000000000 +0100
-+++ drivers/media/dvb-frontends/si2168.c	2014-12-23 21:25:21.288379970 +0100
+--- drivers/media/dvb-frontends/si2168.c	2014-12-16 18:39:45.000000000 +0100
++++ drivers/media/dvb-frontends/si2168.c	2014-12-24 10:00:19.159259000 +0100
 @@ -19,16 +19,17 @@
  static const struct dvb_frontend_ops si2168_ops;
  
@@ -240,7 +239,7 @@ diff -Nur drivers/media.orig/dvb-frontends/si2168.c drivers/media/dvb-frontends/
  		if (ret)
  			goto err;
  	}
-@@ -304,88 +292,88 @@
+@@ -304,86 +292,88 @@
  	memcpy(cmd.args, "\x14\x00\x0f\x10\x10\x00", 6);
  	cmd.wlen = 6;
  	cmd.rlen = 4;
@@ -249,8 +248,8 @@ diff -Nur drivers/media.orig/dvb-frontends/si2168.c drivers/media/dvb-frontends/
  	if (ret)
  		goto err;
  
- 	memcpy(cmd.args, "\x14\x00\x09\x10\xe3\x08", 6);
--	cmd.args[5] |= s->ts_clock_inv ? 0x00 : 0x10;
+-	memcpy(cmd.args, "\x14\x00\x09\x10\xe3\x18", 6);
++	memcpy(cmd.args, "\x14\x00\x09\x10\xe3\x08", 6);
 +	cmd.args[5] |= dev->ts_clock_inv ? 0x00 : 0x10;
  	cmd.wlen = 6;
  	cmd.rlen = 4;
@@ -259,8 +258,8 @@ diff -Nur drivers/media.orig/dvb-frontends/si2168.c drivers/media/dvb-frontends/
  	if (ret)
  		goto err;
  
- 	memcpy(cmd.args, "\x14\x00\x08\x10\xd7\x05", 6);
--	cmd.args[5] |= s->ts_clock_inv ? 0x00 : 0x10;
+-	memcpy(cmd.args, "\x14\x00\x08\x10\xd7\x15", 6);
++	memcpy(cmd.args, "\x14\x00\x08\x10\xd7\x05", 6);
 +	cmd.args[5] |= dev->ts_clock_inv ? 0x00 : 0x10;
  	cmd.wlen = 6;
  	cmd.rlen = 4;
@@ -348,7 +347,7 @@ diff -Nur drivers/media.orig/dvb-frontends/si2168.c drivers/media/dvb-frontends/
  		if (ret)
  			goto err;
  
-@@ -396,7 +384,7 @@
+@@ -394,7 +384,7 @@
  	memcpy(cmd.args, "\xc0\x06\x01\x0f\x00\x20\x20\x01", 8);
  	cmd.wlen = 8;
  	cmd.rlen = 1;
@@ -357,7 +356,7 @@ diff -Nur drivers/media.orig/dvb-frontends/si2168.c drivers/media/dvb-frontends/
  	if (ret)
  		goto err;
  
-@@ -404,7 +392,7 @@
+@@ -402,7 +392,7 @@
  	memcpy(cmd.args, "\x02", 1);
  	cmd.wlen = 1;
  	cmd.rlen = 13;
@@ -366,7 +365,7 @@ diff -Nur drivers/media.orig/dvb-frontends/si2168.c drivers/media/dvb-frontends/
  	if (ret)
  		goto err;
  
-@@ -417,50 +405,48 @@
+@@ -415,124 +405,144 @@
  
  	switch (chip_id) {
  	case SI2168_A20:
@@ -419,7 +418,7 @@ diff -Nur drivers/media.orig/dvb-frontends/si2168.c drivers/media/dvb-frontends/
 +			dev_err(&client->dev,
  					"firmware file '%s' not found\n",
 -					fw_file);
--			goto error_fw_release;
+-			goto err;
 +					fw_name);
 +			goto err_release_firmware;
  		}
@@ -427,46 +426,41 @@ diff -Nur drivers/media.orig/dvb-frontends/si2168.c drivers/media/dvb-frontends/
  
 -	dev_info(&s->client->dev, "downloading firmware from file '%s'\n",
 -			fw_file);
+-
+-	for (remaining = fw->size; remaining > 0; remaining -= i2c_wr_max) {
+-		len = remaining;
+-		if (len > i2c_wr_max)
+-			len = i2c_wr_max;
 +	dev_info(&client->dev, "downloading firmware from file '%s'\n",
 +			fw_name);
  
- 	if ((fw->size % 17 == 0) && (fw->data[0] > 5)) {
- 		/* firmware is in the new format */
-@@ -469,41 +455,37 @@
- 			memcpy(cmd.args, &fw->data[(fw->size - remaining) + 1], len);
- 			cmd.wlen = len;
- 			cmd.rlen = 1;
--			ret = si2168_cmd_execute(s, &cmd);
--			if (ret) {
--				dev_err(&s->client->dev,
--						"firmware download failed=%d\n",
--						ret);
--				goto error_fw_release;
--			}
+-		memcpy(cmd.args, &fw->data[fw->size - remaining], len);
+-		cmd.wlen = len;
+-		cmd.rlen = 1;
+-		ret = si2168_cmd_execute(s, &cmd);
+-		if (ret) {
+-			dev_err(&s->client->dev,
+-					"firmware download failed=%d\n",
+-					ret);
+-			goto err;
++	if ((fw->size % 17 == 0) && (fw->data[0] > 5)) {
++		/* firmware is in the new format */
++		for (remaining = fw->size; remaining > 0; remaining -= 17) {
++			len = fw->data[fw->size - remaining];
++			memcpy(cmd.args, &fw->data[(fw->size - remaining) + 1], len);
++			cmd.wlen = len;
++			cmd.rlen = 1;
 +			ret = si2168_cmd_execute(client, &cmd);
 +			if (ret)
 +				break;
- 		}
--	} else {
++		}
 +	} else if (fw->size % 8 == 0) {
- 		/* firmware is in the old format */
--		for (remaining = fw->size; remaining > 0; remaining -= i2c_wr_max) {
--			len = remaining;
--			if (len > i2c_wr_max)
--				len = i2c_wr_max;
--
++		/* firmware is in the old format */
 +		for (remaining = fw->size; remaining > 0; remaining -= 8) {
 +			len = 8;
- 			memcpy(cmd.args, &fw->data[fw->size - remaining], len);
- 			cmd.wlen = len;
- 			cmd.rlen = 1;
--			ret = si2168_cmd_execute(s, &cmd);
--			if (ret) {
--				dev_err(&s->client->dev,
--						"firmware download failed=%d\n",
--						ret);
--				goto error_fw_release;
--			}
++			memcpy(cmd.args, &fw->data[fw->size - remaining], len);
++			cmd.wlen = len;
++			cmd.rlen = 1;
 +			ret = si2168_cmd_execute(client, &cmd);
 +			if (ret)
 +				break;
@@ -489,22 +483,20 @@ diff -Nur drivers/media.orig/dvb-frontends/si2168.c drivers/media/dvb-frontends/
  	cmd.rlen = 1;
 -	ret = si2168_cmd_execute(s, &cmd);
 +	ret = si2168_cmd_execute(client, &cmd);
- 	if (ret)
- 		goto err;
- 
-@@ -511,58 +493,56 @@
- 	memcpy(cmd.args, "\x11", 1);
- 	cmd.wlen = 1;
- 	cmd.rlen = 10;
--	ret = si2168_cmd_execute(s, &cmd);
++	if (ret)
++		goto err;
++
++	/* query firmware version */
++	memcpy(cmd.args, "\x11", 1);
++	cmd.wlen = 1;
++	cmd.rlen = 10;
 +	ret = si2168_cmd_execute(client, &cmd);
  	if (ret)
  		goto err;
  
--	dev_dbg(&s->client->dev, "firmware version: %c.%c.%d\n",
 +	dev_info(&client->dev, "firmware version: %c.%c.%d\n",
- 			cmd.args[6], cmd.args[7], cmd.args[8]);
- 
++			cmd.args[6], cmd.args[7], cmd.args[8]);
++
  	/* set ts mode */
  	memcpy(cmd.args, "\x14\x00\x01\x10\x10\x00", 6);
 -	cmd.args[4] |= s->ts_mode;
@@ -518,20 +510,23 @@ diff -Nur drivers/media.orig/dvb-frontends/si2168.c drivers/media/dvb-frontends/
  
 -	s->fw_loaded = true;
 -
--	dev_info(&s->client->dev, "found a '%s' in warm state\n",
--			si2168_ops.info.name);
 +	dev->fw_loaded = true;
  warm:
+-	dev_info(&s->client->dev, "found a '%s' in warm state\n",
+-			si2168_ops.info.name);
+-
 -	s->active = true;
 +	dev->active = true;
  
  	return 0;
+-err:
+-	if (fw)
+-		release_firmware(fw);
  
--error_fw_release:
-+err_release_firmware:
- 	release_firmware(fw);
- err:
 -	dev_dbg(&s->client->dev, "failed=%d\n", ret);
++err_release_firmware:
++	release_firmware(fw);
++err:
 +	dev_dbg(&client->dev, "failed=%d\n", ret);
  	return ret;
  }
@@ -565,7 +560,7 @@ diff -Nur drivers/media.orig/dvb-frontends/si2168.c drivers/media/dvb-frontends/
  	return ret;
  }
  
-@@ -581,21 +561,22 @@
+@@ -551,21 +561,22 @@
   */
  static int si2168_select(struct i2c_adapter *adap, void *mux_priv, u32 chan)
  {
@@ -593,7 +588,7 @@ diff -Nur drivers/media.orig/dvb-frontends/si2168.c drivers/media/dvb-frontends/
  		if (ret >= 0)
  			ret = -EREMOTEIO;
  	} else {
-@@ -607,34 +588,37 @@
+@@ -577,26 +588,27 @@
  
  static int si2168_deselect(struct i2c_adapter *adap, void *mux_priv, u32 chan)
  {
@@ -626,10 +621,8 @@ diff -Nur drivers/media.orig/dvb-frontends/si2168.c drivers/media/dvb-frontends/
  
  	return ret;
  }
- 
- static const struct dvb_frontend_ops si2168_ops = {
--	.delsys = {SYS_DVBT, SYS_DVBT2, SYS_DVBC_ANNEX_A},
-+	.delsys = {SYS_DVBC_ANNEX_A},
+@@ -605,6 +617,8 @@
+ 	.delsys = {SYS_DVBT, SYS_DVBT2, SYS_DVBC_ANNEX_A},
  	.info = {
  		.name = "Silicon Labs Si2168",
 +		.symbol_rate_min = 1000000,
@@ -637,7 +630,7 @@ diff -Nur drivers/media.orig/dvb-frontends/si2168.c drivers/media/dvb-frontends/
  		.caps =	FE_CAN_FEC_1_2 |
  			FE_CAN_FEC_2_3 |
  			FE_CAN_FEC_3_4 |
-@@ -670,71 +654,69 @@
+@@ -640,70 +654,69 @@
  		const struct i2c_device_id *id)
  {
  	struct si2168_config *config = client->dev.platform_data;
@@ -679,7 +672,6 @@ diff -Nur drivers/media.orig/dvb-frontends/si2168.c drivers/media/dvb-frontends/
 -	*config->i2c_adapter = s->adapter;
 -	*config->fe = &s->fe;
 -	s->ts_mode = config->ts_mode;
--	s->ts_clock_inv = config->ts_clock_inv;
 -	s->fw_loaded = false;
 +	memcpy(&dev->fe.ops, &si2168_ops, sizeof(struct dvb_frontend_ops));
 +	dev->fe.demodulator_priv = client;
@@ -735,7 +727,7 @@ diff -Nur drivers/media.orig/dvb-frontends/si2168.c drivers/media/dvb-frontends/
  
  static struct i2c_driver si2168_driver = {
  	.driver = {
-@@ -743,7 +725,7 @@
+@@ -712,7 +725,7 @@
  	},
  	.probe		= si2168_probe,
  	.remove		= si2168_remove,
@@ -744,29 +736,26 @@ diff -Nur drivers/media.orig/dvb-frontends/si2168.c drivers/media/dvb-frontends/
  };
  
  module_i2c_driver(si2168_driver);
-diff -Nur drivers/media.orig/dvb-frontends/si2168.h drivers/media/dvb-frontends/si2168.h
---- drivers/media.orig/dvb-frontends/si2168.h	2014-12-21 02:08:50.000000000 +0100
-+++ drivers/media/dvb-frontends/si2168.h	2014-12-23 21:25:21.288379970 +0100
-@@ -36,14 +36,12 @@
+--- drivers/media/dvb-frontends/si2168.h	2014-12-16 18:39:45.000000000 +0100
++++ drivers/media/dvb-frontends/si2168.h	2014-12-23 21:41:36.154324000 +0100
+@@ -36,10 +36,12 @@
  	struct i2c_adapter **i2c_adapter;
  
  	/* TS mode */
-+#define SI2168_TS_PARALLEL	0x06
-+#define SI2168_TS_SERIAL	0x03
- 	u8 ts_mode;
- 
- 	/* TS clock inverted */
- 	bool ts_clock_inv;
+-	u8 ts_mode;
+-};
 -
- };
+ #define SI2168_TS_PARALLEL	0x06
+ #define SI2168_TS_SERIAL	0x03
++	u8 ts_mode;
++
++	/* TS clock inverted */
++	bool ts_clock_inv;
++};
  
--#define SI2168_TS_PARALLEL	0x06
--#define SI2168_TS_SERIAL	0x03
--
  #endif
-diff -Nur drivers/media.orig/dvb-frontends/si2168_priv.h drivers/media/dvb-frontends/si2168_priv.h
---- drivers/media.orig/dvb-frontends/si2168_priv.h	2014-12-21 02:08:50.000000000 +0100
-+++ drivers/media/dvb-frontends/si2168_priv.h	2014-12-23 21:25:21.288379970 +0100
+--- drivers/media/dvb-frontends/si2168_priv.h	2014-12-16 18:39:45.000000000 +0100
++++ drivers/media/dvb-frontends/si2168_priv.h	2014-12-23 21:41:36.154324000 +0100
 @@ -28,8 +28,7 @@
  #define SI2168_B40_FIRMWARE_FALLBACK "dvb-demod-si2168-02.fw"
  
@@ -777,9 +766,23 @@ diff -Nur drivers/media.orig/dvb-frontends/si2168_priv.h drivers/media/dvb-front
  	struct i2c_adapter *adapter;
  	struct mutex i2c_mutex;
  	struct dvb_frontend fe;
-diff -Nur drivers/media.orig/tuners/si2157.c drivers/media/tuners/si2157.c
---- drivers/media.orig/tuners/si2157.c	2014-12-21 02:08:50.000000000 +0100
-+++ drivers/media/tuners/si2157.c	2014-12-23 21:25:21.312380117 +0100
+@@ -38,6 +37,7 @@
+ 	bool active;
+ 	bool fw_loaded;
+ 	u8 ts_mode;
++	bool ts_clock_inv;
+ };
+ 
+ /* firmare command struct */
+--- drivers/media/tuners/si2157.c	2014-12-16 18:39:45.000000000 +0100
++++ drivers/media/tuners/si2157.c	2014-12-23 21:41:36.186324000 +0100
+@@ -1,5 +1,5 @@
+ /*
+- * Silicon Labs Si2147/2157/2158 silicon tuner driver
++ * Silicon Labs Si2146/2147/2148/2157/2158 silicon tuner driver
+  *
+  * Copyright (C) 2014 Antti Palosaari <crope@iki.fi>
+  *
 @@ -19,16 +19,17 @@
  static const struct dvb_tuner_ops si2157_ops;
  
@@ -819,7 +822,7 @@ diff -Nur drivers/media.orig/tuners/si2157.c drivers/media/tuners/si2157.c
  				jiffies_to_msecs(jiffies) -
  				(jiffies_to_msecs(timeout) - TIMEOUT));
  
-@@ -65,35 +66,32 @@
+@@ -65,38 +66,40 @@
  		}
  	}
  
@@ -861,21 +864,22 @@ diff -Nur drivers/media.orig/tuners/si2157.c drivers/media/tuners/si2157.c
  		goto warm;
  
  	/* power up */
--	if (s->chiptype == SI2157_CHIPTYPE_SI2146) {
+-	memcpy(cmd.args, "\xc0\x00\x0c\x00\x00\x01\x01\x01\x01\x01\x01\x02\x00\x00\x01", 15);
+-	cmd.wlen = 15;
 +	if (dev->chiptype == SI2157_CHIPTYPE_SI2146) {
- 		memcpy(cmd.args, "\xc0\x05\x01\x00\x00\x0b\x00\x00\x01", 9);
- 		cmd.wlen = 9;
- 	} else {
-@@ -101,7 +99,7 @@
- 		cmd.wlen = 15;
- 	}
++		memcpy(cmd.args, "\xc0\x05\x01\x00\x00\x0b\x00\x00\x01", 9);
++		cmd.wlen = 9;
++	} else {
++		memcpy(cmd.args, "\xc0\x00\x0c\x00\x00\x01\x01\x01\x01\x01\x01\x02\x00\x00\x01", 15);
++		cmd.wlen = 15;
++	}
  	cmd.rlen = 1;
 -	ret = si2157_cmd_execute(s, &cmd);
 +	ret = si2157_cmd_execute(client, &cmd);
  	if (ret)
  		goto err;
  
-@@ -109,7 +107,7 @@
+@@ -104,7 +107,7 @@
  	memcpy(cmd.args, "\x02", 1);
  	cmd.wlen = 1;
  	cmd.rlen = 13;
@@ -884,19 +888,27 @@ diff -Nur drivers/media.orig/tuners/si2157.c drivers/media/tuners/si2157.c
  	if (ret)
  		goto err;
  
-@@ -125,121 +123,133 @@
+@@ -112,127 +115,141 @@
+ 			cmd.args[4] << 0;
+ 
+ 	#define SI2158_A20 ('A' << 24 | 58 << 16 | '2' << 8 | '0' << 0)
++	#define SI2148_A20 ('A' << 24 | 48 << 16 | '2' << 8 | '0' << 0)
+ 	#define SI2157_A30 ('A' << 24 | 57 << 16 | '3' << 8 | '0' << 0)
+ 	#define SI2147_A30 ('A' << 24 | 47 << 16 | '3' << 8 | '0' << 0)
++	#define SI2146_A10 ('A' << 24 | 46 << 16 | '1' << 8 | '0' << 0)
+ 
  	switch (chip_id) {
  	case SI2158_A20:
- 	case SI2148_A20:
 -		fw_file = SI2158_A20_FIRMWARE;
++	case SI2148_A20:
 +		fw_name = SI2158_A20_FIRMWARE;
  		break;
  	case SI2157_A30:
  	case SI2147_A30:
- 	case SI2146_A10:
 -		goto skip_fw_download;
++	case SI2146_A10:
 +		fw_name = NULL;
-+		break;
+ 		break;
  	default:
 -		dev_err(&s->client->dev,
 -				"unknown chip version Si21%d-%c%c%c\n",
@@ -934,7 +946,7 @@ diff -Nur drivers/media.orig/tuners/si2157.c drivers/media/tuners/si2157.c
 +		dev_err(&client->dev, "firmware file '%s' is invalid\n",
 +				fw_name);
  		ret = -EINVAL;
--		goto fw_release_exit;
+-		goto err;
 +		goto err_release_firmware;
  	}
  
@@ -955,7 +967,7 @@ diff -Nur drivers/media.orig/tuners/si2157.c drivers/media/tuners/si2157.c
 -					"firmware download failed=%d\n",
 +			dev_err(&client->dev, "firmware download failed %d\n",
  					ret);
--			goto fw_release_exit;
+-			goto err;
 +			goto err_release_firmware;
  		}
  	}
@@ -970,18 +982,18 @@ diff -Nur drivers/media.orig/tuners/si2157.c drivers/media/tuners/si2157.c
  	cmd.rlen = 1;
 -	ret = si2157_cmd_execute(s, &cmd);
 +	ret = si2157_cmd_execute(client, &cmd);
- 	if (ret)
- 		goto err;
- 
--	s->fw_loaded = true;
++	if (ret)
++		goto err;
++
 +	/* query firmware version */
 +	memcpy(cmd.args, "\x11", 1);
 +	cmd.wlen = 1;
 +	cmd.rlen = 10;
 +	ret = si2157_cmd_execute(client, &cmd);
-+	if (ret)
-+		goto err;
-+
+ 	if (ret)
+ 		goto err;
+ 
+-	s->fw_loaded = true;
 +	dev_info(&client->dev, "firmware version: %c.%c.%d\n",
 +			cmd.args[6], cmd.args[7], cmd.args[8]);
 +
@@ -992,10 +1004,12 @@ diff -Nur drivers/media.orig/tuners/si2157.c drivers/media/tuners/si2157.c
 +	dev->active = true;
  	return 0;
  
--fw_release_exit:
 +err_release_firmware:
- 	release_firmware(fw);
++	release_firmware(fw);
  err:
+-	if (fw)
+-		release_firmware(fw);
+-
 -	dev_dbg(&s->client->dev, "failed=%d\n", ret);
 +	dev_dbg(&client->dev, "failed=%d\n", ret);
  	return ret;
@@ -1053,7 +1067,17 @@ diff -Nur drivers/media.orig/tuners/si2157.c drivers/media/tuners/si2157.c
  		ret = -EAGAIN;
  		goto err;
  	}
-@@ -274,21 +284,21 @@
+@@ -250,6 +267,9 @@
+ 	case SYS_ATSC:
+ 			delivery_system = 0x00;
+ 			break;
++	case SYS_DVBC_ANNEX_B:
++			delivery_system = 0x10;
++			break;
+ 	case SYS_DVBT:
+ 	case SYS_DVBT2: /* it seems DVB-T and DVB-T2 both are 0x20 here */
+ 			delivery_system = 0x20;
+@@ -264,18 +284,21 @@
  
  	memcpy(cmd.args, "\x14\x00\x03\x07\x00\x00", 6);
  	cmd.args[4] = delivery_system | bandwidth;
@@ -1067,11 +1091,11 @@ diff -Nur drivers/media.orig/tuners/si2157.c drivers/media/tuners/si2157.c
  	if (ret)
  		goto err;
  
--	if (s->chiptype == SI2157_CHIPTYPE_SI2146)
+-	memcpy(cmd.args, "\x14\x00\x02\x07\x01\x00", 6);
 +	if (dev->chiptype == SI2157_CHIPTYPE_SI2146)
- 		memcpy(cmd.args, "\x14\x00\x02\x07\x00\x01", 6);
- 	else
- 		memcpy(cmd.args, "\x14\x00\x02\x07\x01\x00", 6);
++		memcpy(cmd.args, "\x14\x00\x02\x07\x00\x01", 6);
++	else
++		memcpy(cmd.args, "\x14\x00\x02\x07\x01\x00", 6);
  	cmd.wlen = 6;
  	cmd.rlen = 4;
 -	ret = si2157_cmd_execute(s, &cmd);
@@ -1079,7 +1103,7 @@ diff -Nur drivers/media.orig/tuners/si2157.c drivers/media/tuners/si2157.c
  	if (ret)
  		goto err;
  
-@@ -300,13 +310,13 @@
+@@ -287,13 +310,13 @@
  	cmd.args[7] = (c->frequency >> 24) & 0xff;
  	cmd.wlen = 8;
  	cmd.rlen = 1;
@@ -1095,7 +1119,16 @@ diff -Nur drivers/media.orig/tuners/si2157.c drivers/media/tuners/si2157.c
  	return ret;
  }
  
-@@ -334,70 +344,67 @@
+@@ -305,7 +328,7 @@
+ 
+ static const struct dvb_tuner_ops si2157_ops = {
+ 	.info = {
+-		.name           = "Silicon Labs Si2157/Si2158",
++		.name           = "Silicon Labs Si2146/2147/2148/2157/2158",
+ 		.frequency_min  = 110000000,
+ 		.frequency_max  = 862000000,
+ 	},
+@@ -321,65 +344,67 @@
  {
  	struct si2157_config *cfg = client->dev.platform_data;
  	struct dvb_frontend *fe = cfg->fe;
@@ -1117,7 +1150,6 @@ diff -Nur drivers/media.orig/tuners/si2157.c drivers/media/tuners/si2157.c
 -	s->fe = cfg->fe;
 -	s->inversion = cfg->inversion;
 -	s->fw_loaded = false;
--	s->chiptype = (u8)id->driver_data;
 -	mutex_init(&s->i2c_mutex);
 +	i2c_set_clientdata(client, dev);
 +	dev->fe = cfg->fe;
@@ -1138,19 +1170,16 @@ diff -Nur drivers/media.orig/tuners/si2157.c drivers/media/tuners/si2157.c
 -	fe->tuner_priv = s;
 -	memcpy(&fe->ops.tuner_ops, &si2157_ops,
 -			sizeof(struct dvb_tuner_ops));
--
--	i2c_set_clientdata(client, s);
--
--	dev_info(&s->client->dev,
--			"Silicon Labs %s successfully attached\n",
--			s->chiptype == SI2157_CHIPTYPE_SI2146 ?
 +	memcpy(&fe->ops.tuner_ops, &si2157_ops, sizeof(struct dvb_tuner_ops));
 +	fe->tuner_priv = client;
-+
+ 
+-	i2c_set_clientdata(client, s);
 +	dev_info(&client->dev, "Silicon Labs %s successfully attached\n",
 +			dev->chiptype == SI2157_CHIPTYPE_SI2146 ?
- 			"Si2146" : "Si2147/2148/2157/2158");
++			"Si2146" : "Si2147/2148/2157/2158");
  
+-	dev_info(&s->client->dev,
+-			"Silicon Labs Si2157/Si2158 successfully attached\n");
  	return 0;
 +
 +err_kfree:
@@ -1181,7 +1210,6 @@ diff -Nur drivers/media.orig/tuners/si2157.c drivers/media/tuners/si2157.c
  
 -static const struct i2c_device_id si2157_id[] = {
 -	{"si2157", 0},
--	{"si2146", 1},
 +static const struct i2c_device_id si2157_id_table[] = {
 +	{"si2157", SI2157_CHIPTYPE_SI2157},
 +	{"si2146", SI2157_CHIPTYPE_SI2146},
@@ -1192,7 +1220,7 @@ diff -Nur drivers/media.orig/tuners/si2157.c drivers/media/tuners/si2157.c
  
  static struct i2c_driver si2157_driver = {
  	.driver = {
-@@ -406,7 +413,7 @@
+@@ -388,12 +413,12 @@
  	},
  	.probe		= si2157_probe,
  	.remove		= si2157_remove,
@@ -1201,10 +1229,31 @@ diff -Nur drivers/media.orig/tuners/si2157.c drivers/media/tuners/si2157.c
  };
  
  module_i2c_driver(si2157_driver);
-diff -Nur drivers/media.orig/tuners/si2157_priv.h drivers/media/tuners/si2157_priv.h
---- drivers/media.orig/tuners/si2157_priv.h	2014-12-21 02:08:50.000000000 +0100
-+++ drivers/media/tuners/si2157_priv.h	2014-12-23 21:25:21.312380117 +0100
-@@ -21,9 +21,8 @@
+ 
+-MODULE_DESCRIPTION("Silicon Labs Si2157/Si2158 silicon tuner driver");
++MODULE_DESCRIPTION("Silicon Labs Si2146/2147/2148/2157/2158 silicon tuner driver");
+ MODULE_AUTHOR("Antti Palosaari <crope@iki.fi>");
+ MODULE_LICENSE("GPL");
+ MODULE_FIRMWARE(SI2158_A20_FIRMWARE);
+--- drivers/media/tuners/si2157.h	2014-12-16 18:39:45.000000000 +0100
++++ drivers/media/tuners/si2157.h	2014-12-23 14:07:05.143790000 +0100
+@@ -1,5 +1,5 @@
+ /*
+- * Silicon Labs Si2147/2157/2158 silicon tuner driver
++ * Silicon Labs Si2146/2147/2148/2157/2158 silicon tuner driver
+  *
+  * Copyright (C) 2014 Antti Palosaari <crope@iki.fi>
+  *
+--- drivers/media/tuners/si2157_priv.h	2014-12-16 18:39:45.000000000 +0100
++++ drivers/media/tuners/si2157_priv.h	2014-12-23 21:41:36.186324000 +0100
+@@ -1,5 +1,5 @@
+ /*
+- * Silicon Labs Si2147/2157/2158 silicon tuner driver
++ * Silicon Labs Si2146/2147/2148/2157/2158 silicon tuner driver
+  *
+  * Copyright (C) 2014 Antti Palosaari <crope@iki.fi>
+  *
+@@ -21,16 +21,19 @@
  #include "si2157.h"
  
  /* state struct */
@@ -1215,3 +1264,15 @@ diff -Nur drivers/media.orig/tuners/si2157_priv.h drivers/media/tuners/si2157_pr
  	struct dvb_frontend *fe;
  	bool active;
  	bool fw_loaded;
+ 	bool inversion;
++	u8 chiptype;
+ };
+ 
+-/* firmare command struct */
++#define SI2157_CHIPTYPE_SI2157 0
++#define SI2157_CHIPTYPE_SI2146 1
++
++/* firmware command struct */
+ #define SI2157_ARGLEN      30
+ struct si2157_cmd {
+ 	u8 args[SI2157_ARGLEN];
