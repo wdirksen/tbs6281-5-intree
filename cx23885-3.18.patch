@@ -250,39 +250,6 @@
  	cx23885_risc_databuffer(dev->pci, &buf->risc,
  				sgt->sgl,
  				port->ts_packet_size, port->ts_packet_count, 0);
-@@ -1997,9 +1992,14 @@
- 	if (!pci_dma_supported(pci_dev, 0xffffffff)) {
- 		printk("%s/0: Oops: no 32bit PCI DMA ???\n", dev->name);
- 		err = -EIO;
--		goto fail_irq;
-+		goto fail_context;
- 	}
- 
-+	dev->alloc_ctx = vb2_dma_sg_init_ctx(&pci_dev->dev);
-+	if (IS_ERR(dev->alloc_ctx)) {
-+		err = PTR_ERR(dev->alloc_ctx);
-+		goto fail_context;
-+	}
- 	err = request_irq(pci_dev->irq, cx23885_irq,
- 			  IRQF_SHARED, dev->name, dev);
- 	if (err < 0) {
-@@ -2028,6 +2028,8 @@
- 	return 0;
- 
- fail_irq:
-+	vb2_dma_sg_cleanup_ctx(dev->alloc_ctx);
-+fail_context:
- 	cx23885_dev_unregister(dev);
- fail_ctrl:
- 	v4l2_ctrl_handler_free(hdl);
-@@ -2053,6 +2055,7 @@
- 	free_irq(pci_dev->irq, dev);
- 
- 	cx23885_dev_unregister(dev);
-+	vb2_dma_sg_cleanup_ctx(dev->alloc_ctx);
- 	v4l2_ctrl_handler_free(&dev->ctrl_handler);
- 	v4l2_device_unregister(v4l2_dev);
- 	kfree(dev);
 --- drivers/media/pci/cx23885/cx23885-dvb.c	2014-12-16 18:39:45.000000000 +0100
 +++ drivers/media/pci/cx23885/cx23885-dvb.c	2014-12-21 02:08:50.000000000 +0100
 @@ -71,6 +71,7 @@
