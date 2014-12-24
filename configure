@@ -331,7 +331,6 @@ if [ "x$dvbc_opt" = "xyes" ]; then
 fi
 
 if [ "$OS" = Debian ] ; then
-MENUCONFIG="0"
   echo -en "
 Going to configure your kernel.
 
@@ -348,7 +347,6 @@ If you hit 'n', 'make oldconfig' starts.
     confirmyes "Yes, use it. [Y/n]"
 
     if [ "$?" -eq 0 ]; then
-	  MENUCONFIG="1"
       if [ "$VERSION" = "18" ]; then
         cp -f ../kernelconfig/amd64/3.18/config ./.config
       elif [ "$VERSION" = "19" ]; then
@@ -357,16 +355,17 @@ If you hit 'n', 'make oldconfig' starts.
     fi
   else
     make oldconfig
-  fi
-
-  # Change the max num of DVB adapters
-  if [ "$MENUCONFIG" = "0" ]; then
+    # Change the max num of DVB adapters
     echo -en "
-Do you want to change your kernel config?
+\E[1;33;44m
+If you are going to use >4 dvb adapters with
+FFdecsawrapper, make sure your kernel supports it.
+\E[0m
+
+Want to use 'make menuconfig for it?
 
 "
-    confirmyes "Yes, start menuconfig [Y/n]"
-
+    confirmyes "Yes, use it. [Y/n]"
     if [ "$?" -eq 0 ]; then
       make menuconfig
     fi
