@@ -317,11 +317,12 @@ patch -p0 < ../Kconfig.patch
 patch -p0 < ../Makefile.patch
 patch -p0 < ../uapi.patch
 
-if [ "$VERSION" = "19" ]; then
-  patch -p0 < ../silabs-3.19.patch
-elif [ "$VERSION" = "18" ]; then
+
+if [ "$VERSION" = "18" ]; then
   patch -p0 < ../silabs-3.18.patch
   patch -p0 < ../cx23885-3.18.patch
+elif [ "$VERSION" = "19" ]; then
+  patch -p0 < ../silabs-3.19.patch
 fi
 
 # Patch to force driver into DVB-C mode
@@ -330,25 +331,36 @@ if [ "x$dvbc_opt" = "xyes" ]; then
 fi
 
 if [ "$OS" = Debian ] ; then
-
+MENUCONFIG="0"
   echo -en "
 Going to configure your kernel.
 
-Choise: use supplied config file or do
-'make oldconfig'. Do you want to use supplied
-3.19 kernel config?
+"
+
+  if [ "$VERSION" = "18" -o "$VERSION" = "19" ]; then
+    echo -en "
+Choise: use supplied config file or
+do 'make oldconfig'. Do you want to
+use supplied kernel config?
 If you hit 'n', 'make oldconfig' starts.
 
 "
-  confirmyes "Yes, use it. [Y/n]"
+    confirmyes "Yes, use it. [Y/n]"
 
-  if [ "$?" -eq 0 ]; then
-    cp -f ../kernelconfig/amd64/3.19/config ./.config
+    if [ "$?" -eq 0 ]; then
+	  MENUCONFIG="1"
+      if [ "$VERSION" = "18" ]; then
+        cp -f ../kernelconfig/amd64/3.18/config ./.config
+      elif [ "$VERSION" = "19" ]; then
+        cp -f ../kernelconfig/amd64/3.19/config ./.config
+      fi
+    fi
   else
     make oldconfig
   fi
-  # Change the max num of DVB adapters
 
+  # Change the max num of DVB adapters
+  if [ "$MENUCONFIG" = "0" ]; then
     echo -en "
 Do you want to change your kernel config?
 
@@ -358,15 +370,16 @@ Do you want to change your kernel config?
     if [ "$?" -eq 0 ]; then
       make menuconfig
     fi
+  fi
 
-    make-kpkg --rootcmd fakeroot clean
-    export CONCURRENCY_LEVEL=3
-    make-kpkg --rootcmd fakeroot --initrd kernel_image > ../build.log
-    if [ "$?" -eq 0 ]; then
-      cd ..
-      dpkg -i *.deb
-    else
-      echo -en "
+  make-kpkg --rootcmd fakeroot clean
+  export CONCURRENCY_LEVEL=3
+  make-kpkg --rootcmd fakeroot --initrd kernel_image > ../build.log
+  if [ "$?" -eq 0 ]; then
+    cd ..
+    dpkg -i *.deb
+  else
+    echo -en "
 \E[1;33;44m
 Your kernel did  not compile as it should.
 \E[0m
@@ -374,11 +387,8 @@ Your kernel did  not compile as it should.
 Aborting...
 
 "
-      exit 1
-    fi
-
-elif [ "$OS" = Ubuntu ] ; then
-  echo "Nothing here (yet)"
+    exit 1
+  fi
 fi
 
 # Install the firmware
