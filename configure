@@ -317,9 +317,9 @@ patch -p0 < ../Kconfig.patch
 patch -p0 < ../Makefile.patch
 patch -p0 < ../uapi.patch
 
-if [ "$VERSION" eq "19" ]; then
+if [ "$VERSION" = "19" ]; then
   patch -p0 < ../silabs-3.19.patch
-elif [ "$VERSION" eq "18" ]; then
+elif [ "$VERSION" = "18" ]; then
   patch -p0 < ../silabs-3.18.patch
   patch -p0 < ../cx23885-3.18.patch
 fi
