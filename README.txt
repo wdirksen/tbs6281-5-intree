@@ -41,6 +41,12 @@ patch -p0 < ../uapi.patch
 patch -p0 < ../silabs-3.18.patch
 
 ##
+## Running a 3.18 kernel with DVBSky T982 adapters, you also need this:
+##
+
+patch -p0 < ../cx23885-3.18.patch
+
+##
 ## Patch dvbdev.c for use with FFdecsawrapper
 ##
 
