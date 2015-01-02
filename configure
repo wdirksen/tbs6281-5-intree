@@ -231,16 +231,16 @@ fi
 
 #
 # Check for minimum supported kernel version to build with
-# (should be 3.18-rc1 or up)
+# (should be 3.19-rc1 or up)
 #
-MINVERSION="18"
+MINVERSION="19"
 VERSION=$( echo "$vanilla_opt" | cut -d'.' -f2 | cut -d'-' -f1 )
 
 if [ "x$vanilla_opt" != "x" ]; then
   if [ "$VERSION" -lt "$MINVERSION" ]; then
     echo -en "
 \E[1;33;44m
-This TBS6281/6285 driver is supported intree as of 3.18.x kernels.
+This TBS6281/6285 driver is supported intree as of 3.19.x kernels.
 
 You requested a build with a $vanilla_opt kernel.
 
@@ -318,10 +318,7 @@ patch -p0 < ../Makefile.patch
 patch -p0 < ../uapi.patch
 
 
-if [ "$VERSION" = "18" ]; then
-  patch -p0 < ../silabs-3.18.patch
-  patch -p0 < ../cx23885-3.18.patch
-elif [ "$VERSION" = "19" ]; then
+if [ "$VERSION" = "19" ]; then
   patch -p0 < ../silabs-3.19.patch
 fi
 
@@ -336,7 +333,7 @@ Going to configure your kernel.
 
 "
 
-  if [ "$VERSION" = "18" -o "$VERSION" = "19" ]; then
+  if [ "$VERSION" = "19" ]; then
     echo -en "
 Choise: use supplied config file or
 do 'make oldconfig'. Do you want to
@@ -347,11 +344,7 @@ If you hit 'n', 'make oldconfig' starts.
     confirmyes "Yes, use it. [Y/n]"
 
     if [ "$?" -eq 0 ]; then
-      if [ "$VERSION" = "18" ]; then
-        cp -f ../kernelconfig/amd64/3.18/config ./.config
-      elif [ "$VERSION" = "19" ]; then
-        cp -f ../kernelconfig/amd64/3.19/config ./.config
-      fi
+      cp -f ../kernelconfig/amd64/3.19/config ./.config
     fi
   else
     make oldconfig

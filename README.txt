@@ -1,7 +1,7 @@
 ##
 ## HOW-TO
 ##
-## For use with linux-3.18 and up
+## For use with linux-3.19 and up
 ##
 
 
@@ -10,10 +10,10 @@ git clone https://github.com/bas-t/saa716x-intree.git && cd saa716x-intree
 ##
 ## Get and prepare the kernel source
 ##
-## wget <some 3.18 or up kernel>
+## wget <some 3.19 or up kernel>
 ##
 
-wget https://www.kernel.org/pub/linux/kernel/v3.x/testing/linux-3.19-rc1.tar.xz
+wget https://www.kernel.org/pub/linux/kernel/v3.x/testing/linux-3.19-rc2.tar.xz
 
 tar -xJf linux* && cd linux*
 
@@ -21,7 +21,7 @@ make clean && make mrproper
 
 ##
 ## Add TBS 6281/6285 open source drivers to the kernel source
-## That is, for the saa716x pcie bridge chip. Demod and tuner are in linux-3.18
+## That is, for the saa716x pcie bridge chip. Demod and tuner are in linux-3.19
 ##
 
 mkdir drivers/media/pci/saa716x
@@ -34,17 +34,6 @@ patch -p0 < ../Makefile.patch
 
 patch -p0 < ../uapi.patch
 
-##
-## For 3.18 kernels you need a patch for silabs chips
-##
-
-patch -p0 < ../silabs-3.18.patch
-
-##
-## Running a 3.18 kernel with DVBSky T982 adapters, you also need this:
-##
-
-patch -p0 < ../cx23885-3.18.patch
 
 ##
 ## Patch dvbdev.c for use with FFdecsawrapper
