@@ -1,5 +1,5 @@
---- drivers/media/dvb-frontends/si2168.c	2014-12-21 02:08:50.000000000 +0100
-+++ drivers/media/dvb-frontends/si2168.c	2014-12-23 21:25:21.288379970 +0100
+--- drivers/media/dvb-frontends/si2168.c	2014-12-29 01:49:37.000000000 +0100
++++ drivers/media/dvb-frontends/si2168.c	2015-01-05 11:18:19.057798689 +0100
 @@ -19,16 +19,17 @@
  static const struct dvb_frontend_ops si2168_ops;
  
@@ -592,7 +592,7 @@
  		if (ret >= 0)
  			ret = -EREMOTEIO;
  	} else {
-@@ -607,34 +588,37 @@
+@@ -607,26 +588,27 @@
  
  static int si2168_deselect(struct i2c_adapter *adap, void *mux_priv, u32 chan)
  {
@@ -625,10 +625,8 @@
  
  	return ret;
  }
- 
- static const struct dvb_frontend_ops si2168_ops = {
--	.delsys = {SYS_DVBT, SYS_DVBT2, SYS_DVBC_ANNEX_A},
-+	.delsys = {SYS_DVBC_ANNEX_A},
+@@ -635,6 +617,8 @@
+ 	.delsys = {SYS_DVBT, SYS_DVBT2, SYS_DVBC_ANNEX_A},
  	.info = {
  		.name = "Silicon Labs Si2168",
 +		.symbol_rate_min = 1000000,
@@ -743,8 +741,8 @@
  };
  
  module_i2c_driver(si2168_driver);
---- drivers/media/dvb-frontends/si2168.h	2014-12-21 02:08:50.000000000 +0100
-+++ drivers/media/dvb-frontends/si2168.h	2014-12-23 21:25:21.288379970 +0100
+--- drivers/media/dvb-frontends/si2168.h	2014-12-29 01:49:37.000000000 +0100
++++ drivers/media/dvb-frontends/si2168.h	2015-01-05 11:16:42.253225200 +0100
 @@ -36,14 +36,12 @@
  	struct i2c_adapter **i2c_adapter;
  
@@ -762,8 +760,8 @@
 -#define SI2168_TS_SERIAL	0x03
 -
  #endif
---- drivers/media/dvb-frontends/si2168_priv.h	2014-12-21 02:08:50.000000000 +0100
-+++ drivers/media/dvb-frontends/si2168_priv.h	2014-12-23 21:25:21.288379970 +0100
+--- drivers/media/dvb-frontends/si2168_priv.h	2014-12-29 01:49:37.000000000 +0100
++++ drivers/media/dvb-frontends/si2168_priv.h	2015-01-05 11:16:42.253225200 +0100
 @@ -28,8 +28,7 @@
  #define SI2168_B40_FIRMWARE_FALLBACK "dvb-demod-si2168-02.fw"
  
@@ -774,8 +772,8 @@
  	struct i2c_adapter *adapter;
  	struct mutex i2c_mutex;
  	struct dvb_frontend fe;
---- drivers/media/tuners/si2157.c	2014-12-21 02:08:50.000000000 +0100
-+++ drivers/media/tuners/si2157.c	2014-12-23 21:25:21.312380117 +0100
+--- drivers/media/tuners/si2157.c	2014-12-29 01:49:37.000000000 +0100
++++ drivers/media/tuners/si2157.c	2015-01-05 11:16:42.253225200 +0100
 @@ -19,16 +19,17 @@
  static const struct dvb_tuner_ops si2157_ops;
  
@@ -1197,8 +1195,8 @@
  };
  
  module_i2c_driver(si2157_driver);
---- drivers/media/tuners/si2157_priv.h	2014-12-21 02:08:50.000000000 +0100
-+++ drivers/media/tuners/si2157_priv.h	2014-12-23 21:25:21.312380117 +0100
+--- drivers/media/tuners/si2157_priv.h	2014-12-29 01:49:37.000000000 +0100
++++ drivers/media/tuners/si2157_priv.h	2015-01-05 11:16:42.253225200 +0100
 @@ -21,9 +21,8 @@
  #include "si2157.h"
  
