@@ -324,6 +324,9 @@ fi
 
 # Patch to force driver into DVB-C mode
 if [ "x$dvbc_opt" = "xyes" ]; then
+  echo "
+Setting silabs frontend (si2168) permanently to DVB-C mode, as requested.
+"
   sed -i 's/SYS_DVBT, SYS_DVBT2, SYS_DVBC_ANNEX_A/SYS_DVBC_ANNEX_A/' drivers/media/dvb-frontends/si2168.c
 fi
 
