@@ -13,7 +13,7 @@ git clone https://github.com/bas-t/saa716x-intree.git && cd saa716x-intree
 ## wget <some 3.19 or up kernel>
 ##
 
-wget https://www.kernel.org/pub/linux/kernel/v3.x/testing/linux-3.19-rc2.tar.xz
+wget https://www.kernel.org/pub/linux/kernel/v3.x/testing/linux-3.19-rc3.tar.xz
 
 tar -xJf linux* && cd linux*
 
@@ -31,6 +31,8 @@ cp -f ../drivers/media/pci/saa716x/* drivers/media/pci/saa716x/
 patch -p0 < ../Kconfig.patch
 
 patch -p0 < ../Makefile.patch
+
+patch -p0 < ../silabs-3.19.patch
 
 patch -p0 < ../uapi.patch
 
