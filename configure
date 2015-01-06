@@ -361,8 +361,9 @@ Want to use 'make menuconfig for it?
 
 "
     confirmyes "Yes, please do. [Y/n]"
-    if [ "$?" -eq 0 ]; then
-      make menuconfig
+      if [ "$?" -eq 0 ]; then
+        make menuconfig
+      fi
     fi
   else
     make oldconfig
