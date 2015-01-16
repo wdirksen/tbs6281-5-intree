@@ -4,8 +4,9 @@
 ## For use with linux-3.19 and up
 ##
 
+rm -rf saa716x-intree
 
-git clone https://github.com/bas-t/saa716x-intree.git && cd saa716x-intree
+git clone --depth=1 https://github.com/bas-t/saa716x-intree.git -b master && cd saa716x-intree
 
 ##
 ## Get and prepare the kernel source
@@ -13,7 +14,7 @@ git clone https://github.com/bas-t/saa716x-intree.git && cd saa716x-intree
 ## wget <some 3.19 or up kernel>
 ##
 
-wget https://www.kernel.org/pub/linux/kernel/v3.x/testing/linux-3.19-rc3.tar.xz
+wget https://www.kernel.org/pub/linux/kernel/v3.x/testing/linux-3.19-rc4.tar.xz
 
 tar -xJf linux* && cd linux*
 
