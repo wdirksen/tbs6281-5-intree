@@ -1,5 +1,5 @@
 --- drivers/media/dvb-frontends/si2168.c	2015-01-11 21:44:53.000000000 +0100
-+++ drivers/media/dvb-frontends/si2168.c	2015-01-16 14:45:32.892162841 +0100
++++ drivers/media/dvb-frontends/si2168.c	2015-01-17 14:49:33.896278817 +0100
 @@ -19,16 +19,17 @@
  static const struct dvb_frontend_ops si2168_ops;
  
@@ -149,23 +149,19 @@
  		ret = -EAGAIN;
  		goto err;
  	}
-@@ -192,7 +180,14 @@
+@@ -192,7 +180,10 @@
  		goto err;
  	}
  
 -	if (c->bandwidth_hz <= 5000000)
 +	if (c->bandwidth_hz == 0) {
 +		ret = -EINVAL;
-+		dev_err(&client->dev, "automatic bandwidth not supported");
 +		goto err;
-+	}
-+	else if (c->bandwidth_hz <= 2000000)
-+		bandwidth = 0x02;
-+	else if (c->bandwidth_hz <= 5000000)
++	} else if (c->bandwidth_hz <= 5000000)
  		bandwidth = 0x05;
  	else if (c->bandwidth_hz <= 6000000)
  		bandwidth = 0x06;
-@@ -217,7 +212,7 @@
+@@ -217,7 +208,7 @@
  	memcpy(cmd.args, "\x88\x02\x02\x02\x02", 5);
  	cmd.wlen = 5;
  	cmd.rlen = 5;
@@ -174,7 +170,7 @@
  	if (ret)
  		goto err;
  
-@@ -230,7 +225,7 @@
+@@ -230,7 +221,7 @@
  		memcpy(cmd.args, "\x89\x21\x06\x11\x89\x20", 6);
  	cmd.wlen = 6;
  	cmd.rlen = 3;
@@ -183,7 +179,7 @@
  	if (ret)
  		goto err;
  
-@@ -241,7 +236,7 @@
+@@ -241,7 +232,7 @@
  		cmd.args[2] = c->stream_id == NO_STREAM_ID_FILTER ? 0 : 1;
  		cmd.wlen = 3;
  		cmd.rlen = 1;
@@ -192,7 +188,7 @@
  		if (ret)
  			goto err;
  	}
-@@ -249,35 +244,35 @@
+@@ -249,35 +240,35 @@
  	memcpy(cmd.args, "\x51\x03", 2);
  	cmd.wlen = 2;
  	cmd.rlen = 12;
@@ -233,7 +229,7 @@
  	if (ret)
  		goto err;
  
-@@ -285,18 +280,18 @@
+@@ -285,18 +276,18 @@
  	cmd.args[4] = delivery_system | bandwidth;
  	cmd.wlen = 6;
  	cmd.rlen = 4;
@@ -255,7 +251,7 @@
  		if (ret)
  			goto err;
  	}
-@@ -304,88 +299,88 @@
+@@ -304,88 +295,88 @@
  	memcpy(cmd.args, "\x14\x00\x0f\x10\x10\x00", 6);
  	cmd.wlen = 6;
  	cmd.rlen = 4;
@@ -363,7 +359,7 @@
  		if (ret)
  			goto err;
  
-@@ -396,7 +391,7 @@
+@@ -396,7 +387,7 @@
  	memcpy(cmd.args, "\xc0\x06\x01\x0f\x00\x20\x20\x01", 8);
  	cmd.wlen = 8;
  	cmd.rlen = 1;
@@ -372,7 +368,7 @@
  	if (ret)
  		goto err;
  
-@@ -404,7 +399,7 @@
+@@ -404,7 +395,7 @@
  	memcpy(cmd.args, "\x02", 1);
  	cmd.wlen = 1;
  	cmd.rlen = 13;
@@ -381,7 +377,7 @@
  	if (ret)
  		goto err;
  
-@@ -417,50 +412,48 @@
+@@ -417,50 +408,48 @@
  
  	switch (chip_id) {
  	case SI2168_A20:
@@ -447,7 +443,7 @@
  
  	if ((fw->size % 17 == 0) && (fw->data[0] > 5)) {
  		/* firmware is in the new format */
-@@ -469,41 +462,37 @@
+@@ -469,41 +458,37 @@
  			memcpy(cmd.args, &fw->data[(fw->size - remaining) + 1], len);
  			cmd.wlen = len;
  			cmd.rlen = 1;
@@ -507,7 +503,7 @@
  	if (ret)
  		goto err;
  
-@@ -511,58 +500,56 @@
+@@ -511,58 +496,56 @@
  	memcpy(cmd.args, "\x11", 1);
  	cmd.wlen = 1;
  	cmd.rlen = 10;
@@ -580,7 +576,7 @@
  	return ret;
  }
  
-@@ -581,21 +568,22 @@
+@@ -581,21 +564,22 @@
   */
  static int si2168_select(struct i2c_adapter *adap, void *mux_priv, u32 chan)
  {
@@ -608,7 +604,7 @@
  		if (ret >= 0)
  			ret = -EREMOTEIO;
  	} else {
-@@ -607,26 +595,27 @@
+@@ -607,26 +591,27 @@
  
  static int si2168_deselect(struct i2c_adapter *adap, void *mux_priv, u32 chan)
  {
@@ -641,7 +637,7 @@
  
  	return ret;
  }
-@@ -635,6 +624,8 @@
+@@ -635,6 +620,8 @@
  	.delsys = {SYS_DVBT, SYS_DVBT2, SYS_DVBC_ANNEX_A},
  	.info = {
  		.name = "Silicon Labs Si2168",
@@ -650,7 +646,7 @@
  		.caps =	FE_CAN_FEC_1_2 |
  			FE_CAN_FEC_2_3 |
  			FE_CAN_FEC_3_4 |
-@@ -670,71 +661,69 @@
+@@ -670,71 +657,69 @@
  		const struct i2c_device_id *id)
  {
  	struct si2168_config *config = client->dev.platform_data;
@@ -748,7 +744,7 @@
  
  static struct i2c_driver si2168_driver = {
  	.driver = {
-@@ -743,7 +732,7 @@
+@@ -743,7 +728,7 @@
  	},
  	.probe		= si2168_probe,
  	.remove		= si2168_remove,
@@ -758,7 +754,7 @@
  
  module_i2c_driver(si2168_driver);
 --- drivers/media/dvb-frontends/si2168.h	2015-01-11 21:44:53.000000000 +0100
-+++ drivers/media/dvb-frontends/si2168.h	2015-01-16 14:38:56.243176825 +0100
++++ drivers/media/dvb-frontends/si2168.h	2015-01-17 09:00:32.502896000 +0100
 @@ -36,14 +36,12 @@
  	struct i2c_adapter **i2c_adapter;
  
@@ -777,7 +773,7 @@
 -
  #endif
 --- drivers/media/dvb-frontends/si2168_priv.h	2015-01-11 21:44:53.000000000 +0100
-+++ drivers/media/dvb-frontends/si2168_priv.h	2015-01-16 14:38:56.243176825 +0100
++++ drivers/media/dvb-frontends/si2168_priv.h	2015-01-17 09:00:32.502896000 +0100
 @@ -28,8 +28,7 @@
  #define SI2168_B40_FIRMWARE_FALLBACK "dvb-demod-si2168-02.fw"
  
@@ -789,7 +785,7 @@
  	struct mutex i2c_mutex;
  	struct dvb_frontend fe;
 --- drivers/media/tuners/si2157.c	2015-01-11 21:44:53.000000000 +0100
-+++ drivers/media/tuners/si2157.c	2015-01-16 14:38:56.243176825 +0100
++++ drivers/media/tuners/si2157.c	2015-01-17 09:00:32.502896000 +0100
 @@ -19,16 +19,17 @@
  static const struct dvb_tuner_ops si2157_ops;
  
@@ -1212,7 +1208,7 @@
  
  module_i2c_driver(si2157_driver);
 --- drivers/media/tuners/si2157_priv.h	2015-01-11 21:44:53.000000000 +0100
-+++ drivers/media/tuners/si2157_priv.h	2015-01-16 14:38:56.247176835 +0100
++++ drivers/media/tuners/si2157_priv.h	2015-01-17 09:00:32.502896000 +0100
 @@ -21,9 +21,8 @@
  #include "si2157.h"
  
