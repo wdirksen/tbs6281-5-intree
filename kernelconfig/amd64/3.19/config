@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/x86_64 3.19.0-rc4 Kernel Configuration
+# Linux/x86_64 3.19.0-rc5 Kernel Configuration
 #
 CONFIG_64BIT=y
 CONFIG_X86_64=y
@@ -2375,6 +2375,7 @@ CONFIG_IXGBEVF=m
 CONFIG_I40E=m
 CONFIG_I40E_VXLAN=y
 CONFIG_I40E_DCB=y
+# CONFIG_I40E_FCOE is not set
 CONFIG_I40EVF=m
 # CONFIG_FM10K is not set
 CONFIG_NET_VENDOR_I825XX=y
