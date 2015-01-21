@@ -1,6 +1,6 @@
---- drivers/media/pci/cx23885/cx23885-core.c
-+++ drivers/media/pci/cx23885/cx23885-core.c
-@@ -2049,11 +2049,11 @@ static void cx23885_finidev(struct pci_dev *pci_dev)
+--- drivers/media/pci/cx23885/cx23885-core.c	2015-01-18 07:02:20.000000000 +0100
++++ drivers/media/pci/cx23885/cx23885-core.c	2015-01-22 00:35:41.526450172 +0100
+@@ -2049,11 +2049,11 @@
  
  	cx23885_shutdown(dev);
  
@@ -14,3 +14,116 @@
  	cx23885_dev_unregister(dev);
  	vb2_dma_sg_cleanup_ctx(dev->alloc_ctx);
  	v4l2_ctrl_handler_free(&dev->ctrl_handler);
+--- drivers/media/pci/cx23885/cx23885-dvb.c	2015-01-18 07:02:20.000000000 +0100
++++ drivers/media/pci/cx23885/cx23885-dvb.c	2015-01-22 00:35:41.526450172 +0100
+@@ -1793,12 +1793,14 @@
+ 					client_tuner->dev.driver == NULL) {
+ 				module_put(client_demod->dev.driver->owner);
+ 				i2c_unregister_device(client_demod);
++				port->i2c_client_demod = NULL;
+ 				goto frontend_detach;
+ 			}
+ 			if (!try_module_get(client_tuner->dev.driver->owner)) {
+ 				i2c_unregister_device(client_tuner);
+ 				module_put(client_demod->dev.driver->owner);
+ 				i2c_unregister_device(client_demod);
++				port->i2c_client_demod = NULL;
+ 				goto frontend_detach;
+ 			}
+ 			port->i2c_client_tuner = client_tuner;
+@@ -1821,8 +1823,7 @@
+ 		info.platform_data = &si2168_config;
+ 		request_module(info.type);
+ 		client_demod = i2c_new_device(&i2c_bus->i2c_adap, &info);
+-		if (client_demod == NULL ||
+-				client_demod->dev.driver == NULL)
++		if (client_demod == NULL || client_demod->dev.driver == NULL)
+ 			goto frontend_detach;
+ 		if (!try_module_get(client_demod->dev.driver->owner)) {
+ 			i2c_unregister_device(client_demod);
+@@ -1839,16 +1840,17 @@
+ 		info.platform_data = &si2157_config;
+ 		request_module(info.type);
+ 		client_tuner = i2c_new_device(adapter, &info);
+-		if (client_tuner == NULL ||
+-				client_tuner->dev.driver == NULL) {
++		if (client_tuner == NULL || client_tuner->dev.driver == NULL) {
+ 			module_put(client_demod->dev.driver->owner);
+ 			i2c_unregister_device(client_demod);
++			port->i2c_client_demod = NULL;
+ 			goto frontend_detach;
+ 		}
+ 		if (!try_module_get(client_tuner->dev.driver->owner)) {
+ 			i2c_unregister_device(client_tuner);
+ 			module_put(client_demod->dev.driver->owner);
+ 			i2c_unregister_device(client_demod);
++			port->i2c_client_demod = NULL;
+ 			goto frontend_detach;
+ 		}
+ 		port->i2c_client_tuner = client_tuner;
+@@ -1874,8 +1876,7 @@
+ 		info.platform_data = &m88ts2022_config;
+ 		request_module(info.type);
+ 		client_tuner = i2c_new_device(adapter, &info);
+-		if (client_tuner == NULL ||
+-				client_tuner->dev.driver == NULL)
++		if (client_tuner == NULL || client_tuner->dev.driver == NULL)
+ 			goto frontend_detach;
+ 		if (!try_module_get(client_tuner->dev.driver->owner)) {
+ 			i2c_unregister_device(client_tuner);
+@@ -1921,8 +1922,7 @@
+ 		info.platform_data = &m88ts2022_config;
+ 		request_module(info.type);
+ 		client_tuner = i2c_new_device(adapter, &info);
+-		if (client_tuner == NULL ||
+-				client_tuner->dev.driver == NULL)
++		if (client_tuner == NULL || client_tuner->dev.driver == NULL)
+ 			goto frontend_detach;
+ 		if (!try_module_get(client_tuner->dev.driver->owner)) {
+ 			i2c_unregister_device(client_tuner);
+@@ -1967,8 +1967,7 @@
+ 		info.platform_data = &si2168_config;
+ 		request_module(info.type);
+ 		client_demod = i2c_new_device(&i2c_bus->i2c_adap, &info);
+-		if (client_demod == NULL ||
+-				client_demod->dev.driver == NULL)
++		if (client_demod == NULL || client_demod->dev.driver == NULL)
+ 			goto frontend_detach;
+ 		if (!try_module_get(client_demod->dev.driver->owner)) {
+ 			i2c_unregister_device(client_demod);
+@@ -1985,10 +1984,10 @@
+ 		info.platform_data = &si2157_config;
+ 		request_module(info.type);
+ 		client_tuner = i2c_new_device(adapter, &info);
+-		if (client_tuner == NULL ||
+-				client_tuner->dev.driver == NULL) {
++		if (client_tuner == NULL || client_tuner->dev.driver == NULL) {
+ 			module_put(client_demod->dev.driver->owner);
+ 			i2c_unregister_device(client_demod);
++			port->i2c_client_demod = NULL;
+ 			goto frontend_detach;
+ 		}
+ 		if (!try_module_get(client_tuner->dev.driver->owner)) {
+@@ -2110,8 +2109,7 @@
+ 		info.platform_data = &sp2_config;
+ 		request_module(info.type);
+ 		client_ci = i2c_new_device(&i2c_bus2->i2c_adap, &info);
+-		if (client_ci == NULL ||
+-				client_ci->dev.driver == NULL) {
++		if (client_ci == NULL || client_ci->dev.driver == NULL) {
+ 			if (client_tuner) {
+ 				module_put(client_tuner->dev.driver->owner);
+ 				i2c_unregister_device(client_tuner);
+--- drivers/media/pci/cx23885/cx23885-i2c.c	2015-01-18 07:02:20.000000000 +0100
++++ drivers/media/pci/cx23885/cx23885-i2c.c	2015-01-22 00:35:41.526450172 +0100
+@@ -300,8 +300,8 @@
+ 		rc = i2c_master_recv(c, &buf, 0);
+ 		if (rc < 0)
+ 			continue;
+-		printk(KERN_INFO "%s: i2c scan: found device @ 0x%x  [%s]\n",
+-		       name, i << 1, i2c_devs[i] ? i2c_devs[i] : "???");
++		printk(KERN_INFO "%s: i2c scan: found device @ 0x%04x  [%s]\n",
++		       name, i, i2c_devs[i] ? i2c_devs[i] : "???");
+ 	}
+ }
+
