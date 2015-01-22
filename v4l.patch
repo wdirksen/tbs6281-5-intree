@@ -1,5 +1,5 @@
---- a/drivers/media/v4l2-core/videobuf2-core.c
-+++ b/drivers/media/v4l2-core/videobuf2-core.c
+--- drivers/media/v4l2-core/videobuf2-core.c
++++ drivers/media/v4l2-core/videobuf2-core.c
 @@ -3146,27 +3146,26 @@  static int vb2_thread(void *data)
  			prequeue--;
  		} else {
