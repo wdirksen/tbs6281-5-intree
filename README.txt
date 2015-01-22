@@ -37,6 +37,8 @@ patch -p0 < ../cx23885.patch
 
 patch -p0 < ../silabs-3.19.patch
 
+patch -p0 < ../v4l.patch
+
 patch -p0 < ../uapi.patch
 
 
