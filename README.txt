@@ -14,7 +14,7 @@ git clone --depth=1 https://github.com/bas-t/saa716x-intree.git -b master && cd 
 ## wget <some 3.19 or up kernel>
 ##
 
-wget https://www.kernel.org/pub/linux/kernel/v3.x/testing/linux-3.19-rc5.tar.xz
+wget https://www.kernel.org/pub/linux/kernel/v3.x/testing/linux-3.19-rc6.tar.xz
 
 tar -xJf linux* && cd linux*
 
@@ -36,8 +36,6 @@ patch -p0 < ../Makefile.patch
 patch -p0 < ../cx23885.patch
 
 patch -p0 < ../silabs-3.19.patch
-
-patch -p0 < ../v4l.patch
 
 patch -p0 < ../uapi.patch
 
