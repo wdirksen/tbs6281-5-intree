@@ -174,8 +174,8 @@ static void saa716x_dmabuf_sgpagefill(struct saa716x_dmabuf *dmabuf, struct scat
 	/* make page writable for the PC */
 	dma_sync_single_for_cpu(&pdev->dev, dmabuf->mem_ptab_phys, SAA716x_PAGE_SIZE, DMA_TO_DEVICE);
 	page = dmabuf->mem_ptab_virt;
-	sg_cur = sg_list;
 
+	sg_cur = sg_list;
 	/* create page table */
 	for (i = 0; i < pages; i++) {
 		BUG_ON(!(((sg_cur->length + sg_cur->offset) % SAA716x_PAGE_SIZE) == 0));
