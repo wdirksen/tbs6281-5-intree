@@ -367,18 +367,18 @@ If you hit 'n', 'make oldconfig' starts.
     if [ "$?" -eq 0 ]; then
       cp -f ../kernelconfig/amd64/3.19/config ./.config
     else
-    make oldconfig
-    # Change the max num of DVB adapters
-    echo -en "
+      make oldconfig
+      # Change the max num of DVB adapters
+      echo -en "
 \E[1;33;44m
 If you are going to use >4 dvb adapters with
 FFdecsawrapper, make sure your kernel supports it.
 \E[0m
 
-Want to use 'make menuconfig for it?
+Want to use 'make menuconfig' for it?
 
 "
-    confirmyes "Yes, please do. [Y/n]"
+      confirmyes "Yes, please do. [Y/n]"
       if [ "$?" -eq 0 ]; then
         make menuconfig
       fi
@@ -392,7 +392,7 @@ If you are going to use >4 dvb adapters with
 FFdecsawrapper, make sure your kernel supports it.
 \E[0m
 
-Want to use 'make menuconfig for it?
+Want to use 'make menuconfig' for it?
 
 "
     confirmyes "Yes, please do. [Y/n]"
@@ -404,13 +404,30 @@ Want to use 'make menuconfig for it?
 
   make-kpkg --rootcmd fakeroot clean
   export CONCURRENCY_LEVEL=3
+  echo "Compiling your kernel, only warnings and errors are displayed
+in your terminal. The idea is to get some usefull debug output.
+Please be (very) patient. When done, you'll be informed of the result.
+
+
+"
   make-kpkg --rootcmd fakeroot --initrd kernel_image > ../build.log
   if [ "$?" -eq 0 ]; then
+    echo -en "
+\E[1;33;44m
+RESULT:
+
+Going to install your new kernel now.
+\E[0m
+
+"
+    sleep 5
     cd ..
     dpkg -i *.deb
   else
     echo -en "
 \E[1;33;44m
+RESULT:
+
 Your kernel did  not compile as it should.
 \E[0m
 
