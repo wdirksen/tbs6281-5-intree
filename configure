@@ -56,7 +56,7 @@ show_help(){
   echo "                        "
   echo " --dvb_c=<opt>          [yes] no: don't force si2168 into dvb-c mode"
   echo "                        "
-  echo " --dvb_core=<opt>          [yes] no: don't force si2168 into dvb-c mode"
+  echo " --dvb_core=<opt>       [yes] no: don't force si2168 into dvb-c mode"
   echo "                        "
   exit 0
 }
