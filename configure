@@ -56,6 +56,8 @@ show_help(){
   echo "                        "
   echo " --dvb_c=<opt>          [yes] no: don't force si2168 into dvb-c mode"
   echo "                        "
+  echo " --dvb_core=<opt>          [yes] no: don't force si2168 into dvb-c mode"
+  echo "                        "
   exit 0
 }
 
@@ -65,6 +67,7 @@ update_opt="yes"
 sysupdate_opt="yes"
 dvbt_opt="no"
 dvbc_opt="yes"
+dvbcore_opt="yes"
 
 for opt do
   optval="${opt#*=}"
@@ -80,6 +83,8 @@ for opt do
   --dvb_t=*) dvbc_opt="no"; dvbt_opt="$optval"
   ;;
   --dvb_c=*) dvbt_opt="no"; dvbc_opt="$optval"
+  ;;
+  --dvb_core=*) dvbcore_opt="$optval"
   ;;
   --help) show_help
   ;;
@@ -312,7 +317,9 @@ else
 fi
 
 # Patch it for use with FFdecsawrapper
-patch -p0 < ../dvb-core.patch
+if [ "x$dvbcore_opt" = "xyes" ]; then
+  patch -p0 < ../dvb-core.patch
+fi
 
 # Add TBS drivers to the kernel
 
