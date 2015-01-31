@@ -407,9 +407,14 @@ Want to use 'make menuconfig' for it?
   echo "
 "
   echo -en "
-Compiling your kernel, only warnings and errors are displayed
+\E[1;33;44m
+
+Compiling your kernel, only warnings and errors are displayed.
+
 in your terminal. The idea is to get some usefull debug output.
+
 Please be (very) patient. When done, you'll be informed of the result.
+
 \E[0m
 
 "
