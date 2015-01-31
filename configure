@@ -405,9 +405,8 @@ Want to use 'make menuconfig' for it?
   make-kpkg --rootcmd fakeroot clean
   export CONCURRENCY_LEVEL=3
   echo "
-
 "
-  echo -en"
+  echo -en "
 Compiling your kernel, only warnings and errors are displayed
 in your terminal. The idea is to get some usefull debug output.
 Please be (very) patient. When done, you'll be informed of the result.
