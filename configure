@@ -82,7 +82,7 @@ for opt do
   ;;
   --dvb_t=*) dvbc_opt="no"; dvbt_opt="$optval"
   ;;
-  --dvb_c=*) dvbt_opt="no"; dvbc_opt="$optval"
+  --dvb_c=*) dvbc_opt="$optval"
   ;;
   --dvb_core=*) dvbcore_opt="$optval"
   ;;
