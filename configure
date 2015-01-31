@@ -58,6 +58,9 @@ show_help(){
   echo "                        "
   echo " --dvb_core=<opt>       [yes] no: don't force si2168 into dvb-c mode"
   echo "                        "
+  echo " --debug=<opt>          [no] yes: print output of compiling the kernel"
+  echo "                        to ../build.log except for errors/warnings"
+  echo "                        "
   exit 0
 }
 
@@ -68,6 +71,7 @@ sysupdate_opt="yes"
 dvbt_opt="no"
 dvbc_opt="yes"
 dvbcore_opt="yes"
+debug_opt="no"
 
 for opt do
   optval="${opt#*=}"
@@ -85,6 +89,8 @@ for opt do
   --dvb_c=*) dvbc_opt="$optval"
   ;;
   --dvb_core=*) dvbcore_opt="$optval"
+  ;;
+  --debug=*) debug_opt="$optval"
   ;;
   --help) show_help
   ;;
@@ -406,7 +412,8 @@ Want to use 'make menuconfig' for it?
   export CONCURRENCY_LEVEL=3
   echo "
 "
-  echo -en "
+  if [ "x$debug_opt" = "xyes" ]; then
+    echo -en "
 \E[1;33;44m
 
 Compiling your kernel, only warnings and errors are displayed.
@@ -418,8 +425,19 @@ Please be (very) patient. When done, you'll be informed of the result.
 \E[0m
 
 "
-  sleep 5
-  make-kpkg --rootcmd fakeroot --initrd kernel_image > ../build.log
+    sleep 5
+    make-kpkg --rootcmd fakeroot --initrd kernel_image > ../build.log
+  else
+    echo -en "
+\E[1;33;44m
+
+Compiling your kernel, Please be (very) patient.
+
+\E[0m
+
+"
+    make-kpkg --rootcmd fakeroot --initrd kernel_image
+  fi
   if [ "$?" -eq 0 ]; then
     echo -en "
 \E[1;33;44m
