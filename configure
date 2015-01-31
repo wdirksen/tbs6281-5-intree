@@ -393,7 +393,6 @@ Want to use 'make menuconfig' for it?
 fi
 
 
-make-kpkg --rootcmd fakeroot clean
 export CONCURRENCY_LEVEL=3
 echo "
 "
@@ -401,7 +400,7 @@ if [ "x$debug_opt" = "xyes" ]; then
   echo -en "
 \E[1;33;44m
 
-Compiling your kernel, only warnings and errors are displayed.
+Compiling your kernel, only warnings and errors are displayed
 
 in your terminal. The idea is to get some usefull debug output.
 
@@ -411,6 +410,7 @@ Please be (very) patient. When done, you'll be informed of the result.
 
 "
   sleep 5
+  make-kpkg --rootcmd fakeroot clean
   make-kpkg --rootcmd fakeroot --initrd kernel_image > ../build.log
 else
   echo -en "
@@ -421,8 +421,11 @@ Compiling your kernel, Please be (very) patient.
 \E[0m
 
 "
+  sleep 5
+  make-kpkg --rootcmd fakeroot clean
   make-kpkg --rootcmd fakeroot --initrd kernel_image
 fi
+
 if [ "$?" -eq 0 ]; then
   echo -en "
 \E[1;33;44m
