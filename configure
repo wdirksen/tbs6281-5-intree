@@ -52,6 +52,8 @@ show_help(){
   echo "                        "
   echo " --sysupdate=<opt>      [yes] no: don't do apt-update and friends."
   echo "                        "
+  echo " --dvb_t=<opt>          [no] yes: force si2168 into dvb-t mode"
+  echo "                        "
   echo " --dvb_c=<opt>          [yes] no: don't force si2168 into dvb-c mode"
   echo "                        "
   exit 0
@@ -61,6 +63,7 @@ vanilla_opt=""
 linuxnext_opt="no"
 update_opt="yes"
 sysupdate_opt="yes"
+dvbt_opt="no"
 dvbc_opt="yes"
 
 for opt do
@@ -74,7 +77,9 @@ for opt do
   ;;
   --sysupdate=*) sysupdate_opt="$optval"
   ;;
-  --dvb_c=*) dvbc_opt="$optval"
+  --dvb_t=*) dvbc_opt="no"; dvbt_opt="$optval"
+  ;;
+  --dvb_c=*) dvbt_opt="no"; dvbc_opt="$optval"
   ;;
   --help) show_help
   ;;
@@ -329,6 +334,11 @@ if [ "x$dvbc_opt" = "xyes" ]; then
 Setting silabs frontend (si2168) permanently to DVB-C mode, as requested.
 "
   sed -i 's/SYS_DVBT, SYS_DVBT2, SYS_DVBC_ANNEX_A/SYS_DVBC_ANNEX_A/' drivers/media/dvb-frontends/si2168.c
+elif [ "x$dvbt_opt" = "xyes" ]; then
+  echo "
+Setting silabs frontend (si2168) permanently to DVB-T mode, as requested.
+"
+  sed -i 's/SYS_DVBT, SYS_DVBT2, SYS_DVBC_ANNEX_A/SYS_DVBT/' drivers/media/dvb-frontends/si2168.c
 fi
 
 if [ "$OS" = Debian ] ; then
