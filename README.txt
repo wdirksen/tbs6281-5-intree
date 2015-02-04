@@ -4,6 +4,7 @@
 ## For use with linux-3.19 and up
 ##
 
+rm -rf saa716x-intree
 
 git clone https://github.com/bas-t/saa716x-intree.git -b wessel && cd saa716x-intree
 
@@ -13,7 +14,7 @@ git clone https://github.com/bas-t/saa716x-intree.git -b wessel && cd saa716x-in
 ## wget <some 3.19 or up kernel>
 ##
 
-wget https://www.kernel.org/pub/linux/kernel/v3.x/testing/linux-3.19-rc1.tar.xz
+wget https://www.kernel.org/pub/linux/kernel/v3.x/testing/linux-3.19-rc7.tar.xz
 
 tar -xJf linux* && cd linux*
 
@@ -21,7 +22,7 @@ make clean && make mrproper
 
 ##
 ## Add TBS 6281/6285 open source drivers to the kernel source
-## That is, for the saa716x pcie bridge chip. Demod and tuner are in linux-3.18
+## That is, for the saa716x pcie bridge chip. Demod and tuner are in linux-3.19
 ##
 
 mkdir drivers/media/pci/saa716x
@@ -36,7 +37,12 @@ patch -p0 < ../Kconfig.patch
 
 patch -p0 < ../Makefile.patch
 
+patch -p0 < ../cx23885.patch
+
+patch -p0 < ../silabs-3.19.patch
+
 patch -p0 < ../uapi.patch
+
 
 ##
 ## Patch dvbdev.c for use with FFdecsawrapper

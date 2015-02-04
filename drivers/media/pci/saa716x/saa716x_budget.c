@@ -96,13 +96,13 @@ static int saa716x_budget_pci_probe(struct pci_dev *pdev, const struct pci_devic
 	err = saa716x_jetpack_init(saa716x);
 	if (err) {
 		dprintk(SAA716x_ERROR, 1, "SAA716x Jetpack core initialization failed");
-		goto fail1;
+		goto fail2;
 	}
 
 	err = saa716x_i2c_init(saa716x);
 	if (err) {
 		dprintk(SAA716x_ERROR, 1, "SAA716x I2C Initialization failed");
-		goto fail3;
+		goto fail2;
 	}
 
 	saa716x_gpio_init(saa716x);
@@ -131,14 +131,13 @@ static int saa716x_budget_pci_probe(struct pci_dev *pdev, const struct pci_devic
 	err = saa716x_dvb_init(saa716x);
 	if (err) {
 		dprintk(SAA716x_ERROR, 1, "SAA716x DVB initialization failed");
-		goto fail4;
+		goto fail3;
 	}
 
 	return 0;
 
-fail4:
-	saa716x_dvb_exit(saa716x);
 fail3:
+	saa716x_dvb_exit(saa716x);
 	saa716x_i2c_exit(saa716x);
 fail2:
 	saa716x_pci_exit(saa716x);
