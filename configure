@@ -325,7 +325,6 @@ patch -p0 < ../uapi.patch
 
 
 if [ "$VERSION" = "19" ]; then
-  patch -p0 < ../silabs-3.19.patch
   patch -p0 < ../cx23885.patch
 fi
 
